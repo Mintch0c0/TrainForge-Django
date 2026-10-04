@@ -1,0 +1,444 @@
+{% extends 'app_base.html' %}
+{% load static %}
+
+{% block title %}TrainForge | Progress{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/progress.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<section class="progress-page">
+
+    <!-- =========================================================
+         PAGE HEADER
+    ========================================================== -->
+    <div class="progress-header">
+        <div>
+            <h1>Progress Tracking</h1>
+            <p>Track and compare each client’s progress by exercise over time.</p>
+        </div>
+
+        <button type="button" class="primary-action-btn" onclick="openModal('addProgressModal')">
+            + Add Progress Log
+        </button>
+    </div>
+
+    <!-- =========================================================
+         FILTER CONTROLS
+    ========================================================== -->
+    <form method="get" class="progress-toolbar">
+        <div class="auth-field">
+            <label>Client</label>
+            <select name="client" class="clients-filter" onchange="this.form.submit()">
+                {% for client in clients %}
+                    <option value="{{ client.id }}" {% if selected_client.id == client.id %}selected{% endif %}>
+                        {{ client.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="auth-field">
+            <label>Plan</label>
+            <select name="plan_id" class="clients-filter">
+                {% for plan in client_plans %}
+                    <option value="{{ plan.id }}">
+                        {{ plan.client.name }} - {{ plan.plan_title }}
+                    </option>
+                {% empty %}
+                    <option value="">No plans available</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="auth-field">
+            <label>Exercise</label>
+            <select name="exercise" class="clients-filter" onchange="this.form.submit()">
+                {% for exercise in exercise_options %}
+                    <option value="{{ exercise }}" {% if selected_exercise == exercise %}selected{% endif %}>
+                        {{ exercise }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <!-- =========================================================
+         CHARTS, SUMMARY, LOGS, AND AI INSIGHT
+    ========================================================== -->
+    <div class="progress-grid">
+
+        <div class="progress-main-column">
+
+            <div class="section-card">
+                <h2>Weight Progress</h2>
+
+                {% if chart_points %}
+                    <div class="svg-chart-box">
+                        <svg viewBox="0 0 600 260" preserveAspectRatio="none">
+                            <line x1="40" y1="20" x2="40" y2="220" class="chart-axis"></line>
+                            <line x1="40" y1="220" x2="580" y2="220" class="chart-axis"></line>
+
+                            <polyline
+                                points="{% for point in chart_points %}{{ point.svg_x }},{{ point.weight_svg_y }} {% endfor %}"
+                                class="weight-line"
+                            ></polyline>
+
+                            {% for point in chart_points %}
+                                <g class="weight-point-group">
+                                    <circle
+                                        cx="{{ point.svg_x }}"
+                                        cy="{{ point.weight_svg_y }}"
+                                        r="6"
+                                        class="weight-dot"
+                                    ></circle>
+
+                                    <rect
+                                        x="{{ point.tooltip_x }}"
+                                        y="{{ point.tooltip_y }}"
+                                        width="92"
+                                        height="48"
+                                        rx="10"
+                                        class="svg-tooltip-box"
+                                    ></rect>
+
+                                    <text
+                                        x="{{ point.tooltip_text_x }}"
+                                        y="{{ point.tooltip_text_y_1 }}"
+                                        class="svg-tooltip-title"
+                                    >
+                                        {{ point.label }}
+                                    </text>
+
+                                    <text
+                                        x="{{ point.tooltip_text_x }}"
+                                        y="{{ point.tooltip_text_y_2 }}"
+                                        class="svg-tooltip-value"
+                                    >
+                                        weight : {{ point.weight }}
+                                    </text>
+                                </g>
+
+                                <text x="{{ point.svg_x }}" y="245" class="chart-label">{{ point.label }}</text>
+                            {% endfor %}
+                        </svg>
+                    </div>
+                {% else %}
+                    <div class="empty-state-card">
+                        <h3>No progress data</h3>
+                        <p>Add progress logs to populate this chart.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="section-card">
+                <h2>Rep Progress</h2>
+
+                {% if chart_points %}
+                    <div class="rep-chart-mockup">
+                        <div class="rep-y-axis">
+                            <span>{{ max_reps }}</span>
+                            <span>{{ max_reps|floatformat:0 }}</span>
+                            <span>0</span>
+                        </div>
+
+                        <div class="rep-bar-area">
+                            {% for point in chart_points %}
+                                <div class="rep-bar-column">
+                                    <div class="rep-bar-hover-zone">
+                                        <div
+                                            class="rep-bar-fill"
+                                            data-height="{{ point.reps_bar_height }}"
+                                        ></div>
+
+                                        <div class="chart-hover-popup">
+                                            <strong>{{ point.label }}</strong>
+                                            <span>reps : {{ point.reps }}</span>
+                                        </div>
+                                    </div>
+
+                                    <span class="rep-x-label">{{ point.label }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="empty-state-card">
+                        <h3>No rep data</h3>
+                        <p>Add progress logs to populate this chart.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <div class="progress-side-column">
+
+            <div class="section-card progress-summary-card">
+                <h2>Exercise Summary</h2>
+
+                <div class="summary-stack">
+                    <div class="summary-item">
+                        <span>Client</span>
+                        <strong>{{ selected_client.name|default:"Not selected" }}</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Goal</span>
+                        <strong>{{ selected_client.goal|default:"No goal" }}</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Exercise</span>
+                        <strong>{{ selected_exercise|default:"Not selected" }}</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Latest Weight</span>
+                        <strong>
+                            {% if latest_log %}
+                                {{ latest_log.weight }} kg
+                            {% else %}
+                                No data
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Latest Reps</span>
+                        <strong>
+                            {% if latest_log %}
+                                {{ latest_log.reps }}
+                            {% else %}
+                                No data
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Weight Change</span>
+                        <strong>{{ weight_change }} kg</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Rep Change</span>
+                        <strong>{{ reps_change }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="progress-logs-header">
+                    <h2>Recent Logs</h2>
+                    <button type="button" class="outline-btn" onclick="openModal('addProgressModal')">+ Add</button>
+                </div>
+
+                <div class="progress-log-list">
+                    {% if progress_logs %}
+                        {% for log in progress_logs reversed %}
+                            <div class="progress-log-item">
+                                <div>
+                                    <strong>{{ log.log_label }}</strong>
+                                    <p>{{ log.weight }} kg • {{ log.reps }} reps</p>
+                                </div>
+
+                                <div class="progress-log-actions">
+                                    <button type="button" class="outline-btn small-btn" onclick="openModal('editLog{{ log.id }}')">
+                                        Edit
+                                    </button>
+                                    <button type="button" class="delete-btn small-btn" onclick="openModal('deleteLog{{ log.id }}')">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state-card">
+                            <h3>No progress logs</h3>
+                            <p>Add your first progress log to get started.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2>AI Progress Insight</h2>
+
+                <div class="modal-notes ai-insight-box">
+                    <span>Coach Note</span>
+                    <p><strong>Trend:</strong> {{ trend }}</p>
+
+                    {% if selected_client and selected_exercise and latest_log %}
+                        <p>{{ selected_client.name }} is showing {{ trend|lower }} performance in {{ selected_exercise }}.</p>
+                    {% else %}
+                        <p>Progress insight unavailable.</p>
+                    {% endif %}
+
+                    <p>{{ recommendation }}</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =========================================================
+         ADD PROGRESS LOG MODAL
+    ========================================================== -->
+    <div class="modal-overlay" id="addProgressModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Add Progress Log</h2>
+                <button type="button" class="modal-close-btn" onclick="closeModal('addProgressModal')">×</button>
+            </div>
+
+            <form method="post" action="{% url 'add_progress_log' %}">
+                {% csrf_token %}
+
+                <div class="form-grid">
+                    <div class="auth-field">
+                        <label>Client</label>
+                        <select name="client_id" class="clients-filter" required>
+                            {% for client in clients %}
+                                <option value="{{ client.id }}" {% if selected_client.id == client.id %}selected{% endif %}>
+                                    {{ client.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Exercise</label>
+                        <input name="exercise_name" value="{{ selected_exercise }}" placeholder="Example: Bench Press" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Log Label</label>
+                        <input name="log_label" placeholder="Example: Week 5" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Weight (kg)</label>
+                        <input name="weight" type="number" step="0.1" min="0" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Reps</label>
+                        <input name="reps" type="number" min="0" required>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="outline-btn" onclick="closeModal('addProgressModal')">Cancel</button>
+                    <button type="submit" class="primary-action-btn">Add Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         EDIT AND DELETE LOG MODALS
+    ========================================================== -->
+    {% for log in progress_logs %}
+        <div class="modal-overlay" id="editLog{{ log.id }}">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h2>Edit Progress Log</h2>
+                    <button type="button" class="modal-close-btn" onclick="closeModal('editLog{{ log.id }}')">×</button>
+                </div>
+
+                <form method="post" action="{% url 'edit_progress_log' log.id %}">
+                    {% csrf_token %}
+
+                    <div class="form-grid">
+                        <div class="auth-field">
+                            <label>Exercise</label>
+                            <input name="exercise_name" value="{{ log.exercise_name }}" required>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Log Label</label>
+                            <input name="log_label" value="{{ log.log_label }}" required>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Weight (kg)</label>
+                            <input name="weight" type="number" step="0.1" min="0" value="{{ log.weight }}" required>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Reps</label>
+                            <input name="reps" type="number" min="0" value="{{ log.reps }}" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="outline-btn" onclick="closeModal('editLog{{ log.id }}')">Cancel</button>
+                        <button type="submit" class="primary-action-btn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="deleteLog{{ log.id }}">
+            <div class="modal-card delete-modal-card">
+                <div class="modal-header">
+                    <h2>Delete Progress Log</h2>
+                    <button type="button" class="modal-close-btn" onclick="closeModal('deleteLog{{ log.id }}')">×</button>
+                </div>
+
+                <p>Are you sure you want to delete <strong>{{ log.log_label }}</strong>?</p>
+
+                <form method="post" action="{% url 'delete_progress_log' log.id %}" class="modal-actions">
+                    {% csrf_token %}
+                    <button type="button" class="outline-btn" onclick="closeModal('deleteLog{{ log.id }}')">Cancel</button>
+                    <button type="submit" class="delete-btn">Delete</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+
+</section>
+
+<!-- =========================================================
+     PROGRESS PAGE JAVASCRIPT
+========================================================== -->
+<script>
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.classList.add("show", "active");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.classList.remove("show", "active");
+        document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("modal-overlay")) {
+            closeModal(event.target.id);
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            document.querySelectorAll(".modal-overlay.show, .modal-overlay.active").forEach(function (modal) {
+                closeModal(modal.id);
+            });
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".rep-bar-fill").forEach(function (bar) {
+            const height = bar.dataset.height || 0;
+            bar.style.height = `${height}%`;
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,412 @@
+/* =========================================================
+   Dashboard Page Layout
+   ========================================================= */
+
+.dashboard-page {
+    padding: 36px;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 34px;
+    flex-wrap: wrap;
+}
+
+.dashboard-header h1 {
+    font-size: 42px;
+    margin-bottom: 8px;
+}
+
+.dashboard-header p,
+.list-item p {
+    color: #b8c7df;
+}
+
+.dashboard-header p {
+    font-size: 18px;
+}
+
+.dashboard-header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+}
+
+/* =========================================================
+   Month Filter and Profile Badge
+   ========================================================= */
+
+.month-filter-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.month-filter-form select,
+.month-filter-form input {
+    background: #0f172a;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-weight: 800;
+    outline: none;
+}
+
+.month-filter-form input {
+    width: 90px;
+}
+
+.month-filter-form button {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 16px;
+    color: white;
+    font-weight: 900;
+    background: linear-gradient(90deg, #38cfff, #f03bbb);
+    cursor: pointer;
+}
+
+.profile-badge {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    color: white;
+    text-decoration: none;
+    overflow: hidden;
+    background: linear-gradient(135deg, #38cfff, #f03bbb);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+}
+
+.profile-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* =========================================================
+   Cards and Grid Structure
+   ========================================================= */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+    margin-bottom: 28px;
+}
+
+.dashboard-grid {
+    display: grid;
+    gap: 22px;
+    margin-bottom: 22px;
+}
+
+.two-column {
+    grid-template-columns: 2fr 1fr;
+}
+
+.summary-card,
+.section-card {
+    background: rgba(15, 23, 42, 0.74);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 22px;
+    padding: 26px;
+}
+
+.summary-card h3 {
+    color: #a8b5c8;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+}
+
+.summary-card p {
+    font-size: 38px;
+    font-weight: 900;
+}
+
+.section-card h2 {
+    font-size: 24px;
+    margin-bottom: 24px;
+}
+
+.accent-line {
+    width: 72px;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #31d7ff, #ff3dbd);
+    margin-top: 12px;
+}
+
+/* =========================================================
+   Charts
+   ========================================================= */
+
+.tf-chart {
+    position: relative;
+    height: 310px;
+    padding: 8px 8px 36px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.05), rgba(255, 47, 179, 0.04));
+}
+
+.tf-chart svg {
+    width: 100%;
+    height: 260px;
+}
+
+.no-bottom-labels {
+    padding-bottom: 8px;
+}
+
+.chart-axis {
+    stroke: rgba(180, 200, 230, 0.75);
+    stroke-width: 1.5;
+}
+
+.chart-grid-line {
+    stroke: rgba(255, 255, 255, 0.09);
+    stroke-width: 1;
+}
+
+.chart-week-label {
+    fill: #94a3b8;
+    font-size: 13px;
+    font-weight: 800;
+    font-family: inherit;
+}
+
+.line-completed,
+.line-frequency {
+    fill: none !important;
+    stroke-width: 3.2;
+}
+
+.line-completed {
+    stroke: #22d3ee !important;
+    filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.45));
+}
+
+.line-frequency {
+    stroke: #ff2fb3 !important;
+    filter: drop-shadow(0 0 5px rgba(255, 47, 179, 0.45));
+}
+
+.dot-completed {
+    fill: #22d3ee;
+}
+
+.dot-frequency {
+    fill: #ff2fb3;
+}
+
+.bar-frequency {
+    fill: url("#barGradient");
+}
+
+/* =========================================================
+   Chart Hover Tooltips
+   ========================================================= */
+
+.chart-hover-zone {
+    position: absolute;
+    top: 8px;
+    bottom: 42px;
+    width: 25%;
+    z-index: 4;
+}
+
+.zone-1 { left: 0%; }
+.zone-2 { left: 25%; }
+.zone-3 { left: 50%; }
+.zone-4 { left: 75%; }
+
+.chart-hover-zone:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.chart-popup {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, 10px);
+    display: grid;
+    gap: 4px;
+    padding: 10px 12px;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 20;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+    transition: 0.2s ease;
+}
+
+.chart-hover-zone:hover .chart-popup {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.chart-popup strong {
+    color: white;
+    font-size: 13px;
+}
+
+.chart-popup span {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.chart-popup .cyan {
+    color: #22d3ee;
+}
+
+.chart-popup .pink {
+    color: #ff2fb3;
+}
+
+.chart-popup .purple {
+    color: #a855f7;
+}
+
+/* =========================================================
+   Lists, Activity Feed, and Quick Actions
+   ========================================================= */
+
+.list-group {
+    display: grid;
+    gap: 14px;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+}
+
+.list-item p {
+    margin-top: 6px;
+}
+
+.status-badge {
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(34, 211, 238, 0.12);
+    color: #22d3ee;
+    font-weight: 900;
+    font-size: 13px;
+}
+
+.activity-list {
+    padding-left: 20px;
+    color: #a8b5c8;
+    line-height: 2;
+}
+
+.quick-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.quick-actions a {
+    display: grid !important;
+    place-items: center;
+    min-height: 64px;
+    padding: 16px;
+    text-align: center;
+    text-decoration: none !important;
+    color: white !important;
+    font-weight: 900;
+    border-radius: 16px;
+    background: linear-gradient(90deg, rgba(56, 207, 255, 0.85), rgba(240, 59, 187, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: 0.2s ease;
+}
+
+.quick-actions a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 22px rgba(240, 59, 187, 0.22);
+}
+
+/* =========================================================
+   Empty State and AI Insight
+   ========================================================= */
+
+.empty-state-card {
+    padding: 32px;
+    text-align: center;
+    color: #a8b5c8;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 18px;
+}
+
+.empty-state-card h3 {
+    color: white;
+    margin-bottom: 10px;
+}
+
+.ai-insight-card {
+    padding: 24px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(255, 47, 179, 0.14));
+    border: 1px solid rgba(56, 207, 255, 0.22);
+}
+
+.ai-insight-card span {
+    color: #22d3ee;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.ai-insight-card p {
+    margin-top: 14px;
+    color: #f8fafc;
+    line-height: 1.7;
+    font-weight: 700;
+}
+
+/* =========================================================
+   Responsive Layout
+   ========================================================= */
+
+@media (max-width: 1000px) {
+    .dashboard-header,
+    .dashboard-header-right {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .summary-grid,
+    .two-column,
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-page {
+        padding: 22px;
+    }
+
+    .month-filter-form {
+        flex-wrap: wrap;
+    }
+}

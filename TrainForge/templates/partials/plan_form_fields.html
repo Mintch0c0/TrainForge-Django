@@ -1,0 +1,188 @@
+<!-- =====================================================
+     BASIC PLAN DETAILS
+====================================================== -->
+<div class="form-grid">
+    <div class="auth-field">
+        <label>Client</label>
+        <input value="{{ client.name }}" readonly>
+    </div>
+
+    <div class="auth-field">
+        <label>Plan Title</label>
+        <input name="plan_title" value="{{ plan.plan_title|default:'' }}" placeholder="Enter plan title" required>
+    </div>
+
+    <div class="auth-field">
+        <label>Goal Type</label>
+        <select name="goal_type" class="clients-filter">
+            <option {% if plan.goal_type == "Weight Loss" or client.goal == "Weight Loss" %}selected{% endif %}>Weight Loss</option>
+            <option {% if plan.goal_type == "Muscle Gain" or client.goal == "Muscle Gain" %}selected{% endif %}>Muscle Gain</option>
+            <option {% if plan.goal_type == "General Fitness" or client.goal == "General Fitness" %}selected{% endif %}>General Fitness</option>
+            <option {% if plan.goal_type == "Strength Training" or client.goal == "Strength Training" %}selected{% endif %}>Strength Training</option>
+            <option {% if plan.goal_type == "Endurance" or client.goal == "Endurance" %}selected{% endif %}>Endurance</option>
+            <option {% if plan.goal_type == "Posture & Mobility" or client.goal == "Posture & Mobility" %}selected{% endif %}>Posture & Mobility</option>
+        </select>
+    </div>
+
+    <div class="auth-field">
+        <label>Fitness Level</label>
+        <select name="fitness_level" class="clients-filter">
+            <option {% if plan.fitness_level == "Beginner" %}selected{% endif %}>Beginner</option>
+            <option {% if plan.fitness_level == "Intermediate" %}selected{% endif %}>Intermediate</option>
+            <option {% if plan.fitness_level == "Advanced" %}selected{% endif %}>Advanced</option>
+        </select>
+    </div>
+
+    <div class="auth-field">
+        <label>Training Frequency</label>
+        <select name="training_frequency" class="clients-filter">
+            <option {% if plan.training_frequency == "2 Days / Week" %}selected{% endif %}>2 Days / Week</option>
+            <option {% if plan.training_frequency == "3 Days / Week" %}selected{% endif %}>3 Days / Week</option>
+            <option {% if plan.training_frequency == "4 Days / Week" %}selected{% endif %}>4 Days / Week</option>
+            <option {% if plan.training_frequency == "5 Days / Week" %}selected{% endif %}>5 Days / Week</option>
+        </select>
+    </div>
+
+    <div class="auth-field">
+        <label>Equipment Access</label>
+        <select name="equipment_access" class="clients-filter">
+            <option {% if plan.equipment_access == "Full Gym" %}selected{% endif %}>Full Gym</option>
+            <option {% if plan.equipment_access == "Home Gym" %}selected{% endif %}>Home Gym</option>
+            <option {% if plan.equipment_access == "Minimal Equipment" %}selected{% endif %}>Minimal Equipment</option>
+            <option {% if plan.equipment_access == "Bodyweight Only" %}selected{% endif %}>Bodyweight Only</option>
+            <option {% if plan.equipment_access == "Trainer selected" %}selected{% endif %}>Trainer selected</option>
+        </select>
+    </div>
+</div>
+
+<!-- =====================================================
+     PREFERRED TIMES SUMMARY
+====================================================== -->
+<div class="preferred-times-summary-box">
+    <span>Preferred Appointment Times</span>
+
+    <div class="preferred-times-list">
+        {% if preferred_times %}
+            {% for time in preferred_times %}
+                <div class="preferred-time-chip">{{ time.preferred_day }}, {{ time.preferred_time }}</div>
+            {% endfor %}
+        {% else %}
+            <p>No preferred appointment times set.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- =====================================================
+     TRAINER NOTES
+====================================================== -->
+<div class="modal-notes ai-insight-box">
+    <span>Plan Insight</span>
+    <p>Use the client's goal, equipment access, and preferred availability to create a realistic weekly training structure.</p>
+</div>
+
+<div class="auth-field">
+    <label>Limitations / Trainer Notes</label>
+    <textarea
+        name="notes"
+        rows="4"
+        class="client-notes-input"
+        placeholder="Add injury notes, mobility limitations, or trainer notes..."
+    >{{ plan.limitations_trainer_notes|default:'' }}</textarea>
+</div>
+
+<!-- =====================================================
+     TRAINING DAYS
+====================================================== -->
+{% if plan and plan.plansession_set.all %}
+    {% for session in plan.plansession_set.all %}
+    {% with exercise=session.trainingsessionexercise_set.first %}
+    <div class="section-card workout-day-card">
+        <div class="workout-day-header">
+            <h2>Day {{ forloop.counter }} - Training Session</h2>
+            <button type="button" class="remove-day-btn" onclick="removeTrainingDay(this)">Remove Day</button>
+        </div>
+
+        <div class="auth-field">
+            <label>Session Day Label</label>
+            <input name="session_day_label" value="{{ session.session_day_label }}" placeholder="Day {{ forloop.counter }} - Full Body Strength">
+        </div>
+
+        <div class="form-grid">
+            <div class="auth-field">
+                <label>Exercise Name</label>
+                <input name="exercise_name" value="{{ exercise.exercise_name|default:'' }}" placeholder="Goblet Squat">
+            </div>
+
+            <div class="auth-field">
+                <label>Description</label>
+                <input name="exercise_description" value="{{ exercise.description|default:'' }}" placeholder="Lower body strength and movement control.">
+            </div>
+
+            <div class="auth-field">
+                <label>Sets</label>
+                <input name="sets_count" type="number" value="{{ exercise.sets_count|default:'' }}" placeholder="3" min="0">
+            </div>
+
+            <div class="auth-field">
+                <label>Reps</label>
+                <input name="reps_count" type="number" value="{{ exercise.reps_count|default:'' }}" placeholder="10" min="0">
+            </div>
+
+            <div class="auth-field">
+                <label>Rest Seconds</label>
+                <input name="rest_seconds" type="number" value="{{ exercise.rest_seconds|default:'' }}" placeholder="60" min="0">
+            </div>
+
+            <div class="auth-field">
+                <label>Exercise Notes</label>
+                <input name="exercise_notes" value="{{ exercise.trainer_notes|default:'' }}" placeholder="Keep chest lifted and control the descent.">
+            </div>
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+{% else %}
+    <div class="section-card workout-day-card">
+        <div class="workout-day-header">
+            <h2>Day 1 - Training Session</h2>
+            <button type="button" class="remove-day-btn" onclick="removeTrainingDay(this)">Remove Day</button>
+        </div>
+
+        <div class="auth-field">
+            <label>Session Day Label</label>
+            <input name="session_day_label" placeholder="Day 1 - Full Body Strength">
+        </div>
+
+        <div class="form-grid">
+            <div class="auth-field">
+                <label>Exercise Name</label>
+                <input name="exercise_name" placeholder="Goblet Squat">
+            </div>
+
+            <div class="auth-field">
+                <label>Description</label>
+                <input name="exercise_description" placeholder="Lower body strength and movement control.">
+            </div>
+
+            <div class="auth-field">
+                <label>Sets</label>
+                <input name="sets_count" type="number" placeholder="3" min="0">
+            </div>
+
+            <div class="auth-field">
+                <label>Reps</label>
+                <input name="reps_count" type="number" placeholder="10" min="0">
+            </div>
+
+            <div class="auth-field">
+                <label>Rest Seconds</label>
+                <input name="rest_seconds" type="number" placeholder="60" min="0">
+            </div>
+
+            <div class="auth-field">
+                <label>Exercise Notes</label>
+                <input name="exercise_notes" placeholder="Keep chest lifted and control the descent.">
+            </div>
+        </div>
+    </div>
+{% endif %}

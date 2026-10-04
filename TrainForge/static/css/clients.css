@@ -1,0 +1,469 @@
+/* =========================================================
+   CLIENTS PAGE LAYOUT
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.clients-page {
+    padding: 36px;
+}
+
+.clients-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.clients-header h1 {
+    font-size: 40px;
+    margin-bottom: 8px;
+}
+
+.clients-header p,
+.clients-results-meta {
+    color: #b8c7df;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.primary-action-btn,
+.filter-btn {
+    border: none;
+    padding: 14px 20px;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #38cfff, #f03bbb);
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.ghost-btn,
+.outline-btn,
+.delete-btn,
+.remove-time-btn,
+.add-time-btn,
+.ai-generate-btn {
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.ghost-btn,
+.outline-btn,
+.delete-btn {
+    padding: 10px 14px;
+    border-radius: 12px;
+}
+
+.ghost-btn {
+    border: none;
+    color: white;
+    background: rgba(255,255,255,0.08);
+}
+
+.outline-btn {
+    border: 1px solid rgba(255,255,255,0.12);
+    color: white;
+    background: transparent;
+}
+
+.delete-btn {
+    border: none;
+    color: white;
+    background: rgba(239,68,68,0.9);
+}
+
+.ai-generate-btn {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+    color: white;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 24px;
+    font-size: 18px;
+    transition: 0.25s;
+}
+
+.ai-generate-btn:hover {
+    transform: translateY(-2px);
+    border-color: #ff46d6;
+    box-shadow: 0 0 25px rgba(255, 70, 214, 0.18);
+}
+
+.ai-generate-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   SEARCH AND FILTERS
+   ========================================================= */
+
+.clients-toolbar {
+    display: grid;
+    grid-template-columns: 1fr 180px 180px 100px;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.clients-search,
+.clients-filter,
+.time-select-group select,
+.auth-field input,
+.auth-field select,
+.client-notes-input,
+.notes-field textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(15, 23, 42, 0.85);
+    color: white;
+    outline: none;
+}
+
+.clients-search::placeholder,
+.auth-field input::placeholder,
+.notes-field textarea::placeholder {
+    color: rgba(184, 199, 223, 0.65);
+}
+
+.auth-field input:-webkit-autofill,
+.auth-field input:-webkit-autofill:hover,
+.auth-field input:-webkit-autofill:focus {
+    -webkit-text-fill-color: white;
+    box-shadow: 0 0 0 1000px #0f172a inset;
+    caret-color: white;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+/* =========================================================
+   CLIENT CARDS
+   ========================================================= */
+
+.client-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 28px;
+    margin-top: 28px;
+}
+
+.client-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 420px;
+    background: rgba(15, 23, 42, 0.74);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 22px;
+    padding: 30px;
+}
+
+.client-card-top,
+.client-card-actions,
+.progress-label-row,
+.meta-row,
+.modal-header,
+.view-profile-top,
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.client-avatar {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    font-size: 20px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #38cfff, #f03bbb);
+}
+
+.client-avatar.large {
+    width: 76px;
+    height: 76px;
+}
+
+.client-status {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(34,211,238,0.12);
+    color: #22d3ee;
+    font-weight: 900;
+    font-size: 14px;
+}
+
+.client-main-info {
+    margin: 28px 0 20px;
+}
+
+.client-main-info h2 {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+.client-main-info p,
+.meta-row span {
+    color: #a8b5c8;
+}
+
+.client-meta {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.meta-row {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) minmax(160px, 1.2fr);
+    align-items: start;
+}
+
+.meta-row strong {
+    text-align: right;
+    word-break: break-word;
+    line-height: 1.35;
+}
+
+.client-progress-block {
+    margin-top: auto;
+}
+
+.progress-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    margin-top: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 50%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #38cfff, #f03bbb);
+}
+
+.three-actions {
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.three-actions button {
+    min-width: 84px;
+}
+
+/* =========================================================
+   MODALS
+   ========================================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.68);
+    z-index: 50;
+    padding: 24px;
+}
+
+.modal-overlay.show,
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-card {
+    width: min(760px, calc(100vw - 48px));
+    max-height: 88vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 28px;
+}
+
+.large-modal {
+    width: min(860px, calc(100vw - 48px));
+    max-width: 860px;
+}
+
+.delete-modal-card {
+    max-width: 520px;
+}
+
+.modal-close-btn {
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.form-grid,
+.modal-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 24px;
+}
+
+.auth-field {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.auth-field label,
+.preferred-title {
+    font-weight: 800;
+}
+
+.modal-notes,
+.modal-detail-item {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.modal-notes span,
+.modal-detail-item span {
+    color: #22d3ee;
+    font-weight: 800;
+}
+
+.ai-insight-box {
+    border-color: rgba(255,47,179,0.22);
+}
+
+.notes-field {
+    margin-top: 4px;
+}
+
+.notes-field textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+/* =========================================================
+   PREFERRED APPOINTMENT TIMES
+   ========================================================= */
+
+.preferred-times-section {
+    margin: 8px 0 24px;
+}
+
+.preferred-title {
+    display: block;
+    margin-bottom: 14px;
+}
+
+.preferred-times-list {
+    display: grid;
+    gap: 14px;
+}
+
+.preferred-time-row {
+    display: grid;
+    grid-template-columns: minmax(170px, 1fr) minmax(280px, 1.4fr) auto;
+    gap: 16px;
+    align-items: center;
+}
+
+.time-select-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.time-select-group select {
+    min-height: 50px;
+}
+
+.remove-time-btn {
+    min-height: 50px;
+    background: rgba(255, 74, 74, 0.15);
+    color: #ff7d7d;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 14px 18px;
+}
+
+.add-time-btn {
+    margin-top: 16px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: white;
+    border-radius: 16px;
+    padding: 14px 18px;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.empty-state-card {
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 18px;
+    padding: 32px;
+    text-align: center;
+    color: #a8b5c8;
+}
+
+.empty-state-card h3 {
+    color: white;
+    margin-bottom: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+    .clients-page {
+        padding: 22px;
+    }
+
+    .clients-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .client-grid,
+    .clients-toolbar,
+    .form-grid,
+    .modal-details-grid,
+    .preferred-time-row {
+        grid-template-columns: 1fr;
+    }
+
+    .time-select-group {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .meta-row {
+        grid-template-columns: 1fr;
+    }
+
+    .meta-row strong {
+        text-align: left;
+    }
+
+    .client-card-actions {
+        flex-wrap: wrap;
+    }
+}

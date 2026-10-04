@@ -1,0 +1,729 @@
+{% extends 'app_base.html' %}
+{% load static %}
+
+{% block title %}TrainForge | Clients{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/clients.css' %}">
+<style>
+    .preferred-time-warning {
+        margin: 10px 0 12px;
+        padding: 12px 14px;
+        border: 1px solid rgba(248, 113, 113, 0.35);
+        border-radius: 14px;
+        background: rgba(239, 68, 68, 0.12);
+        color: #fecaca;
+        font-weight: 800;
+    }
+
+    .preferred-time-row.has-error select {
+        border-color: rgba(248, 113, 113, 0.65);
+    }
+</style>
+{% endblock %}
+
+{% block app_content %}
+<section class="clients-page">
+
+    <!-- =========================================================
+         PAGE HEADER
+    ========================================================== -->
+    <div class="clients-header">
+        <div>
+            <h1>Clients</h1>
+            <p>Manage client information, goals, preferred appointment times, and training progress.</p>
+        </div>
+
+        <button type="button" class="primary-action-btn" onclick="openModal('addClientModal')">
+            + Add New Client
+        </button>
+    </div>
+
+    <!-- =========================================================
+         SEARCH AND FILTERS
+    ========================================================== -->
+    <form method="get" class="clients-toolbar">
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search clients..."
+            class="clients-search"
+        >
+
+        <select name="status" class="clients-filter">
+            <option {% if status == "All Status" %}selected{% endif %}>All Status</option>
+            <option {% if status == "New" %}selected{% endif %}>New</option>
+            <option {% if status == "Onboarding" %}selected{% endif %}>Onboarding</option>
+            <option {% if status == "Active" %}selected{% endif %}>Active</option>
+            <option {% if status == "At Risk" %}selected{% endif %}>At Risk</option>
+            <option {% if status == "Completed" %}selected{% endif %}>Completed</option>
+        </select>
+
+        <select name="goal" class="clients-filter">
+            <option {% if goal == "All Goals" %}selected{% endif %}>All Goals</option>
+            <option {% if goal == "Weight Loss" %}selected{% endif %}>Weight Loss</option>
+            <option {% if goal == "Muscle Gain" %}selected{% endif %}>Muscle Gain</option>
+            <option {% if goal == "General Fitness" %}selected{% endif %}>General Fitness</option>
+            <option {% if goal == "Strength Training" %}selected{% endif %}>Strength Training</option>
+            <option {% if goal == "Endurance" %}selected{% endif %}>Endurance</option>
+            <option {% if goal == "Posture & Mobility" %}selected{% endif %}>Posture & Mobility</option>
+        </select>
+
+        <button type="submit" class="filter-btn">Apply</button>
+    </form>
+
+    <div class="clients-results-meta">
+        <p>Showing <strong>{{ clients|length }}</strong> client{% if clients|length != 1 %}s{% endif %}</p>
+    </div>
+
+    <!-- =========================================================
+         CLIENT CARDS
+    ========================================================== -->
+    <div class="client-grid">
+        {% for client in clients %}
+        <div class="client-card">
+            <div class="client-card-top">
+                <div class="client-avatar">{{ client.name|slice:":2"|upper }}</div>
+                <span class="client-status">{{ client.status }}</span>
+            </div>
+
+            <div class="client-main-info">
+                <h2>{{ client.name }}</h2>
+                <p>{{ client.goal }}</p>
+            </div>
+
+            <div class="client-meta">
+                <div class="meta-row">
+                    <span>Email</span>
+                    <strong>{{ client.email }}</strong>
+                </div>
+
+                <div class="meta-row">
+                    <span>Preferred Appointment Time</span>
+                    <strong>
+                        {% if client.preferred_times_data %}
+                            {% for preferred in client.preferred_times_data %}
+                                {{ preferred.preferred_day }}, {{ preferred.preferred_time }}{% if not forloop.last %} • {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            Not set
+                        {% endif %}
+                    </strong>
+                </div>
+            </div>
+
+            <div class="client-progress-block">
+                <div class="progress-label-row">
+                    <span>Status</span>
+                    <strong>{{ client.status }}</strong>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="client-card-actions three-actions">
+                <button type="button" class="ghost-btn" onclick="openModal('viewClient{{ client.id }}')">View</button>
+                <button type="button" class="outline-btn" onclick="openModal('editClient{{ client.id }}')">Edit</button>
+                <button type="button" class="delete-btn" onclick="openModal('deleteClient{{ client.id }}')">Delete</button>
+            </div>
+        </div>
+
+        <!-- View client modal -->
+        <div class="modal-overlay" id="viewClient{{ client.id }}">
+            <div class="modal-card large-modal">
+                <div class="modal-header">
+                    <h2>Client Profile</h2>
+                    <button type="button" class="modal-close-btn" onclick="closeModal('viewClient{{ client.id }}')">×</button>
+                </div>
+
+                <div class="view-profile-top">
+                    <div class="client-avatar large">{{ client.name|slice:":2"|upper }}</div>
+                    <div>
+                        <h3>{{ client.name }}</h3>
+                        <p>{{ client.goal }}</p>
+                    </div>
+                </div>
+
+                <div class="modal-details-grid">
+                    <div class="modal-detail-item">
+                        <span>Email</span>
+                        <strong>{{ client.email }}</strong>
+                    </div>
+
+                    <div class="modal-detail-item">
+                        <span>Phone</span>
+                        <strong>{{ client.phone }}</strong>
+                    </div>
+
+                    <div class="modal-detail-item">
+                        <span>Status</span>
+                        <strong>{{ client.status }}</strong>
+                    </div>
+
+                    <div class="modal-detail-item">
+                        <span>Preferred Time</span>
+                        <strong>
+                            {% if client.preferred_times_data %}
+                                {% for preferred in client.preferred_times_data %}
+                                    {{ preferred.preferred_day }}, {{ preferred.preferred_time }}{% if not forloop.last %} • {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                Not set
+                            {% endif %}
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="modal-notes ai-insight-box">
+                    <span>AI Coaching Insight</span>
+                    <p>
+                        This client is focused on {{ client.goal }}. Use their current status and preferred appointment time to plan a realistic weekly training routine.
+                    </p>
+                </div>
+
+                <div class="modal-notes">
+                    <span>Notes</span>
+                    <p>{{ client.notes }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit client modal -->
+        <div class="modal-overlay" id="editClient{{ client.id }}">
+            <div class="modal-card large-modal">
+                <div class="modal-header">
+                    <h2>Edit Client</h2>
+                    <button type="button" class="modal-close-btn" onclick="closeModal('editClient{{ client.id }}')">×</button>
+                </div>
+
+                <form method="post" action="{% url 'edit_client' client.id %}" class="client-form" onsubmit="return validatePreferredTimes(this)">
+                    {% csrf_token %}
+
+                    <div class="form-grid">
+                        <div class="auth-field">
+                            <label>Name</label>
+                            <input name="name" value="{{ client.name }}" placeholder="Enter client name" required>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Goal</label>
+                            <select name="goal" class="clients-filter">
+                                <option {% if client.goal == "Weight Loss" %}selected{% endif %}>Weight Loss</option>
+                                <option {% if client.goal == "Muscle Gain" %}selected{% endif %}>Muscle Gain</option>
+                                <option {% if client.goal == "General Fitness" %}selected{% endif %}>General Fitness</option>
+                                <option {% if client.goal == "Strength Training" %}selected{% endif %}>Strength Training</option>
+                                <option {% if client.goal == "Endurance" %}selected{% endif %}>Endurance</option>
+                                <option {% if client.goal == "Posture & Mobility" %}selected{% endif %}>Posture & Mobility</option>
+                            </select>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Status</label>
+                            <select name="status" class="clients-filter">
+                                <option {% if client.status == "New" %}selected{% endif %}>New</option>
+                                <option {% if client.status == "Onboarding" %}selected{% endif %}>Onboarding</option>
+                                <option {% if client.status == "Active" %}selected{% endif %}>Active</option>
+                                <option {% if client.status == "At Risk" %}selected{% endif %}>At Risk</option>
+                                <option {% if client.status == "Completed" %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Email</label>
+                            <input name="email" type="email" value="{{ client.email }}" placeholder="Enter email" required>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Phone</label>
+                            <input name="phone" value="{{ client.phone }}" placeholder="Enter phone number">
+                        </div>
+                    </div>
+
+                    <div class="preferred-times-section">
+                        <label class="preferred-title">Preferred Appointment Times</label>
+                        <div class="preferred-time-warning" style="display: none;"></div>
+
+                        <div class="preferred-times-list">
+                            {% if client.preferred_times_data %}
+                                {% for preferred in client.preferred_times_data %}
+                            <div class="preferred-time-row">
+                                <select name="preferred_day" class="clients-filter">
+                                    <option value="">Select Day</option>
+                                    <option value="Monday" {% if preferred.preferred_day == "Monday" %}selected{% endif %}>Monday</option>
+                                    <option value="Tuesday" {% if preferred.preferred_day == "Tuesday" %}selected{% endif %}>Tuesday</option>
+                                    <option value="Wednesday" {% if preferred.preferred_day == "Wednesday" %}selected{% endif %}>Wednesday</option>
+                                    <option value="Thursday" {% if preferred.preferred_day == "Thursday" %}selected{% endif %}>Thursday</option>
+                                    <option value="Friday" {% if preferred.preferred_day == "Friday" %}selected{% endif %}>Friday</option>
+                                    <option value="Saturday" {% if preferred.preferred_day == "Saturday" %}selected{% endif %}>Saturday</option>
+                                    <option value="Sunday" {% if preferred.preferred_day == "Sunday" %}selected{% endif %}>Sunday</option>
+                                </select>
+
+                                <div class="time-select-group">
+                                    <select class="time-hour" onchange="syncPreferredTime(this)">
+                                        <option value="">Hour</option>
+                                        <option value="01" {% if preferred.hour == "01" %}selected{% endif %}>01</option>
+                                        <option value="02" {% if preferred.hour == "02" %}selected{% endif %}>02</option>
+                                        <option value="03" {% if preferred.hour == "03" %}selected{% endif %}>03</option>
+                                        <option value="04" {% if preferred.hour == "04" %}selected{% endif %}>04</option>
+                                        <option value="05" {% if preferred.hour == "05" %}selected{% endif %}>05</option>
+                                        <option value="06" {% if preferred.hour == "06" %}selected{% endif %}>06</option>
+                                        <option value="07" {% if preferred.hour == "07" %}selected{% endif %}>07</option>
+                                        <option value="08" {% if preferred.hour == "08" %}selected{% endif %}>08</option>
+                                        <option value="09" {% if preferred.hour == "09" %}selected{% endif %}>09</option>
+                                        <option value="10" {% if preferred.hour == "10" %}selected{% endif %}>10</option>
+                                        <option value="11" {% if preferred.hour == "11" %}selected{% endif %}>11</option>
+                                        <option value="12" {% if preferred.hour == "12" %}selected{% endif %}>12</option>
+                                    </select>
+
+                                    <select class="time-minute" onchange="syncPreferredTime(this)">
+                                        <option value="">Min</option>
+                                        <option value="00" {% if preferred.minute == "00" %}selected{% endif %}>00</option>
+                                        <option value="15" {% if preferred.minute == "15" %}selected{% endif %}>15</option>
+                                        <option value="30" {% if preferred.minute == "30" %}selected{% endif %}>30</option>
+                                        <option value="45" {% if preferred.minute == "45" %}selected{% endif %}>45</option>
+                                    </select>
+
+                                    <select class="time-period" onchange="syncPreferredTime(this)">
+                                        <option value="">AM/PM</option>
+                                        <option value="AM" {% if preferred.period == "AM" %}selected{% endif %}>AM</option>
+                                        <option value="PM" {% if preferred.period == "PM" %}selected{% endif %}>PM</option>
+                                    </select>
+
+                                    <input
+                                        type="hidden"
+                                        name="preferred_time"
+                                        class="preferred-time-value"
+                                        value="{{ preferred.form_value }}"
+                                    >
+                                </div>
+
+                                <button type="button" class="remove-time-btn" onclick="removePreferredTime(this)">Remove</button>
+                            </div>
+                                {% endfor %}
+                            {% else %}
+                            <div class="preferred-time-row">
+                                <select name="preferred_day" class="clients-filter">
+                                    <option value="">Select Day</option>
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                    <option value="Sunday">Sunday</option>
+                                </select>
+
+                                <div class="time-select-group">
+                                    <select class="time-hour" onchange="syncPreferredTime(this)">
+                                        <option value="">Hour</option>
+                                        <option value="01">01</option>
+                                        <option value="02">02</option>
+                                        <option value="03">03</option>
+                                        <option value="04">04</option>
+                                        <option value="05">05</option>
+                                        <option value="06">06</option>
+                                        <option value="07">07</option>
+                                        <option value="08">08</option>
+                                        <option value="09">09</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+
+                                    <select class="time-minute" onchange="syncPreferredTime(this)">
+                                        <option value="">Min</option>
+                                        <option value="00">00</option>
+                                        <option value="15">15</option>
+                                        <option value="30">30</option>
+                                        <option value="45">45</option>
+                                    </select>
+
+                                    <select class="time-period" onchange="syncPreferredTime(this)">
+                                        <option value="">AM/PM</option>
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+
+                                    <input type="hidden" name="preferred_time" class="preferred-time-value">
+                                </div>
+
+                                <button type="button" class="remove-time-btn" onclick="removePreferredTime(this)">Remove</button>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="button" class="add-time-btn" onclick="addPreferredTime(this)">+ Add Preferred Time</button>
+                    </div>
+
+                    <div class="auth-field notes-field">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="5" placeholder="Add notes about this client">{{ client.notes }}</textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="outline-btn" onclick="closeModal('editClient{{ client.id }}')">Cancel</button>
+                        <button type="submit" class="primary-action-btn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Delete client modal -->
+        <div class="modal-overlay" id="deleteClient{{ client.id }}">
+            <div class="modal-card delete-modal-card">
+                <div class="modal-header">
+                    <h2>Delete Client</h2>
+                    <button type="button" class="modal-close-btn" onclick="closeModal('deleteClient{{ client.id }}')">×</button>
+                </div>
+
+                <p>Are you sure you want to delete <strong>{{ client.name }}</strong>?</p>
+
+                <form method="post" action="{% url 'delete_client' client.id %}" class="modal-actions">
+                    {% csrf_token %}
+                    <button type="button" class="outline-btn" onclick="closeModal('deleteClient{{ client.id }}')">Cancel</button>
+                    <button type="submit" class="delete-btn">Delete Client</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if clients|length == 0 %}
+    <div class="empty-state-card">
+        <h3>No clients found</h3>
+        <p>Try changing the search term or filters.</p>
+    </div>
+    {% endif %}
+
+    <!-- =========================================================
+         ADD CLIENT MODAL
+    ========================================================== -->
+    <div class="modal-overlay" id="addClientModal">
+        <div class="modal-card large-modal">
+            <div class="modal-header">
+                <h2>Add New Client</h2>
+                <button type="button" class="modal-close-btn" onclick="closeModal('addClientModal')">×</button>
+            </div>
+
+            <form method="post" action="{% url 'add_client' %}" class="client-form" id="addClientForm" onsubmit="return validatePreferredTimes(this)">
+                {% csrf_token %}
+
+                <button type="button" class="ai-generate-btn" onclick="generateClientPlanAndNote()">
+                    Generate Plan & Note with AI
+                </button>
+
+                <div class="form-grid">
+                    <div class="auth-field">
+                        <label>Name</label>
+                        <input name="name" id="clientNameInput" placeholder="Enter client name" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Goal</label>
+                        <select name="goal" id="clientGoalInput" class="clients-filter" onchange="markPlanNeedsRefresh()">
+                            <option>Weight Loss</option>
+                            <option>Muscle Gain</option>
+                            <option>General Fitness</option>
+                            <option>Strength Training</option>
+                            <option>Endurance</option>
+                            <option>Posture & Mobility</option>
+                        </select>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Plan</label>
+                        <input name="plan" id="clientPlanInput" placeholder="Weight Loss Program">
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Status</label>
+                        <select name="status" id="clientStatusInput" class="clients-filter" onchange="markPlanNeedsRefresh()">
+                            <option>New</option>
+                            <option>Onboarding</option>
+                            <option>Active</option>
+                            <option>At Risk</option>
+                            <option>Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Email</label>
+                        <input name="email" type="email" placeholder="Enter email" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Phone</label>
+                        <input name="phone" placeholder="Enter phone number">
+                    </div>
+                </div>
+
+                <div class="preferred-times-section">
+                    <label class="preferred-title">Preferred Appointment Times</label>
+
+                    <div class="preferred-times-list" id="preferredTimesList">
+                        <div class="preferred-time-row">
+                            <select name="preferred_day" class="clients-filter">
+                                <option>Monday</option>
+                                <option>Tuesday</option>
+                                <option>Wednesday</option>
+                                <option>Thursday</option>
+                                <option>Friday</option>
+                                <option>Saturday</option>
+                                <option>Sunday</option>
+                            </select>
+
+                            <div class="time-select-group">
+                                <select class="time-hour" onchange="syncPreferredTime(this)">
+                                    <option value="">Hour</option>
+                                    <option value="01">01</option>
+                                    <option value="02">02</option>
+                                    <option value="03">03</option>
+                                    <option value="04">04</option>
+                                    <option value="05">05</option>
+                                    <option value="06">06</option>
+                                    <option value="07">07</option>
+                                    <option value="08">08</option>
+                                    <option value="09">09</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+
+                                <select class="time-minute" onchange="syncPreferredTime(this)">
+                                    <option value="">Min</option>
+                                    <option value="00">00</option>
+                                    <option value="15">15</option>
+                                    <option value="30">30</option>
+                                    <option value="45">45</option>
+                                </select>
+
+                                <select class="time-period" onchange="syncPreferredTime(this)">
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                </select>
+
+                                <input type="hidden" name="preferred_time" class="preferred-time-value">
+                            </div>
+
+                            <button type="button" class="remove-time-btn" onclick="removePreferredTime(this)">Remove</button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="add-time-btn" onclick="addPreferredTime(this)">+ Add Preferred Time</button>
+                </div>
+
+                <div class="auth-field notes-field">
+                    <label>Notes</label>
+                    <textarea name="notes" id="clientNotesInput" rows="5" placeholder="Add notes about this client"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="outline-btn" onclick="closeModal('addClientModal')">Cancel</button>
+                    <button type="submit" class="primary-action-btn">Add Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================
+     CLIENT PAGE JAVASCRIPT
+========================================================== -->
+<script>
+    /* Shared HTML template used when adding another preferred time row. */
+    const timeRowTemplate = `
+        <div class="preferred-time-row">
+            <select name="preferred_day" class="clients-filter">
+                <option value="">Select Day</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+            </select>
+
+            <div class="time-select-group">
+                <select class="time-hour" onchange="syncPreferredTime(this)">
+                    <option value="">Hour</option>
+                    <option value="01">01</option>
+                    <option value="02">02</option>
+                    <option value="03">03</option>
+                    <option value="04">04</option>
+                    <option value="05">05</option>
+                    <option value="06">06</option>
+                    <option value="07">07</option>
+                    <option value="08">08</option>
+                    <option value="09">09</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>
+
+                <select class="time-minute" onchange="syncPreferredTime(this)">
+                    <option value="">Min</option>
+                    <option value="00">00</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                </select>
+
+                <select class="time-period" onchange="syncPreferredTime(this)">
+                    <option value="">AM/PM</option>
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                </select>
+
+                <input type="hidden" name="preferred_time" class="preferred-time-value">
+            </div>
+
+            <button type="button" class="remove-time-btn" onclick="removePreferredTime(this)">Remove</button>
+        </div>
+    `;
+
+    function addPreferredTime(button) {
+        const section = button.closest(".preferred-times-section");
+        const list = section.querySelector(".preferred-times-list");
+
+        list.insertAdjacentHTML("beforeend", timeRowTemplate);
+    }
+
+    function removePreferredTime(button) {
+        const list = button.closest(".preferred-times-list");
+        const rows = list.querySelectorAll(".preferred-time-row");
+
+        if (rows.length > 1) {
+            button.closest(".preferred-time-row").remove();
+        }
+    }
+
+    function syncPreferredTime(element) {
+        const row = element.closest(".preferred-time-row");
+
+        const hour = row.querySelector(".time-hour").value;
+        const minute = row.querySelector(".time-minute").value;
+        const period = row.querySelector(".time-period").value;
+
+        const hiddenInput = row.querySelector(".preferred-time-value");
+
+        if (hour && minute && period) {
+            hiddenInput.value = `${hour}:${minute} ${period}`;
+        } else {
+            hiddenInput.value = "";
+        }
+    }
+
+    function showPreferredTimeWarning(form, message) {
+        const warningPanel = form.querySelector(".preferred-time-warning");
+
+        if (!warningPanel) {
+            alert(message);
+            return;
+        }
+
+        warningPanel.textContent = message;
+        warningPanel.style.display = "block";
+        warningPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function clearPreferredTimeWarnings(form) {
+        const warningPanel = form.querySelector(".preferred-time-warning");
+
+        if (warningPanel) {
+            warningPanel.textContent = "";
+            warningPanel.style.display = "none";
+        }
+
+        form.querySelectorAll(".preferred-time-row").forEach(function (row) {
+            row.classList.remove("has-error");
+        });
+    }
+
+    function validatePreferredTimes(form) {
+        const rows = form.querySelectorAll(".preferred-time-row");
+
+        clearPreferredTimeWarnings(form);
+
+        for (const row of rows) {
+            const day = row.querySelector("[name='preferred_day']").value;
+            const hour = row.querySelector(".time-hour").value;
+            const minute = row.querySelector(".time-minute").value;
+            const period = row.querySelector(".time-period").value;
+
+            if (!day || !hour || !minute || !period) {
+                row.classList.add("has-error");
+
+                showPreferredTimeWarning(
+                    form,
+                    "Please complete all preferred appointment time selections: day, hour, minute, and AM/PM."
+                );
+
+                return false;
+            }
+
+            syncPreferredTime(row.querySelector(".time-hour"));
+        }
+
+        return true;
+    }
+
+    function markPlanNeedsRefresh() {
+        const planInput = document.getElementById("clientPlanInput");
+        const notesInput = document.getElementById("clientNotesInput");
+
+        planInput.dataset.needsRefresh = "true";
+        notesInput.dataset.needsRefresh = "true";
+    }
+
+    async function generateClientPlanAndNote() {
+        const button = document.querySelector(".ai-generate-btn");
+        const nameInput = document.getElementById("clientNameInput");
+        const goalInput = document.getElementById("clientGoalInput");
+        const planInput = document.getElementById("clientPlanInput");
+        const statusInput = document.getElementById("clientStatusInput");
+        const notesInput = document.getElementById("clientNotesInput");
+        const csrfToken = document.querySelector("#addClientForm input[name='csrfmiddlewaretoken']").value;
+
+        button.textContent = "Generating plan and note...";
+        button.disabled = true;
+
+        try {
+            const response = await fetch("{% url 'generate_client_plan_and_note' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: new URLSearchParams({
+                    name: nameInput.value,
+                    goal: goalInput.value,
+                    plan: planInput.value,
+                    status: statusInput.value,
+                    force_update: "true",
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.plan) {
+                planInput.value = data.plan;
+                planInput.dataset.needsRefresh = "false";
+            }
+
+            if (data.note) {
+                notesInput.value = data.note;
+                notesInput.dataset.needsRefresh = "false";
+            }
+        } catch (error) {
+            notesInput.value = "Unable to generate AI content right now. Please add the plan and note manually.";
+        }
+
+        button.textContent = "Generate Plan & Note with AI";
+        button.disabled = false;
+    }
+</script>
+{% endblock %}

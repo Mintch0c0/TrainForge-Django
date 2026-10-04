@@ -1,0 +1,495 @@
+{% extends 'app_base.html' %}
+{% load static %}
+
+{% block title %}TrainForge | Training Plans{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/plans.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<section class="plans-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+    <div class="plans-header">
+        <div>
+            <h1>Training Plans</h1>
+            <p>Create personalised training plans based on client goals, experience, equipment access, and trainer services.</p>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         SEARCH BAR
+    ====================================================== -->
+    <form method="get" class="plans-toolbar">
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search clients, goals, plans, or preferred times..."
+            class="plans-search"
+        >
+        <button type="submit" class="filter-btn">Search</button>
+    </form>
+
+    <!-- =====================================================
+         PLAN LIST
+    ====================================================== -->
+    <div class="plan-list-card">
+        <div class="plan-list-header">
+            <span>Client</span>
+            <span>Goal</span>
+            <span>Plan Status</span>
+            <span>Actions</span>
+        </div>
+
+        {% for row in plan_rows %}
+        <div class="plan-list-row">
+            <div class="plan-client-cell">
+                <strong>{{ row.client.name }}</strong>
+
+                {% if row.plan %}
+                    <p>{{ row.plan.plan_title }}</p>
+                {% endif %}
+
+                <p class="plan-preferred-time-text">
+                    Preferred:
+                    {% if row.preferred_times %}
+                        {% for time in row.preferred_times %}
+                            {{ time.preferred_day }}, {{ time.preferred_time }}{% if not forloop.last %} • {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        Not set
+                    {% endif %}
+                </p>
+            </div>
+
+            <span>{{ row.client.goal }}</span>
+
+            <span>
+                {% if row.plan %}
+                    <span class="plan-status-badge has-plan">Has Plan</span>
+                {% else %}
+                    <span class="plan-status-badge no-plan">No Plan</span>
+                {% endif %}
+            </span>
+
+            <div class="plan-row-actions">
+                {% if row.plan %}
+                    <button type="button" class="ghost-btn" onclick="openPlanModal('viewPlan{{ row.plan.id }}')">View</button>
+                    <button type="button" class="outline-btn" onclick="openPlanModal('editPlan{{ row.plan.id }}')">Edit</button>
+                    <button type="button" class="delete-btn" onclick="openPlanModal('deletePlan{{ row.plan.id }}')">Delete</button>
+                {% else %}
+                    <button type="button" class="primary-action-btn" onclick="openPlanModal('createPlan{{ row.client.id }}')">+ Add Plan</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- =================================================
+             VIEW PLAN MODAL
+        ================================================== -->
+        {% if row.plan %}
+        <div class="modal-overlay" id="viewPlan{{ row.plan.id }}">
+            <div class="plan-builder-modal">
+                <div class="plans-header">
+                    <div>
+                        <h1>View Training Plan</h1>
+                        <p>Review this client's current training plan and program summary.</p>
+                    </div>
+
+                    <button type="button" class="outline-btn" onclick="closePlanModal('viewPlan{{ row.plan.id }}')">
+                        Back to List
+                    </button>
+                </div>
+
+                <div class="plans-builder-grid">
+                    <div class="plans-main-column">
+                        <div class="section-card">
+                            <h2>Plan Details</h2>
+                            <p class="muted-text">This view is read-only so the saved plan can be reviewed safely.</p>
+
+                            {% include 'partials/plan_form_fields_readonly.html' with client=row.client plan=row.plan preferred_times=row.preferred_times %}
+                        </div>
+                    </div>
+
+                    <aside class="plans-side-column">
+                        <div class="section-card plan-summary-card">
+                            <h2>Plan Summary</h2>
+
+                            <div class="summary-stack">
+                                <div class="summary-item"><span>Client</span><strong>{{ row.client.name }}</strong></div>
+                                <div class="summary-item"><span>Plan Title</span><strong>{{ row.plan.plan_title }}</strong></div>
+                                <div class="summary-item"><span>Goal</span><strong>{{ row.plan.goal_type }}</strong></div>
+                                <div class="summary-item"><span>Level</span><strong>{{ row.plan.fitness_level }}</strong></div>
+                                <div class="summary-item"><span>Frequency</span><strong>{{ row.plan.training_frequency }}</strong></div>
+                                <div class="summary-item"><span>Equipment</span><strong>{{ row.plan.equipment_access }}</strong></div>
+                                <div class="summary-item">
+                                    <span>Preferred Times</span>
+                                    <strong>
+                                        {% if row.preferred_times %}
+                                            {% for time in row.preferred_times %}
+                                                {{ time.preferred_day }}, {{ time.preferred_time }}{% if not forloop.last %} • {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            Not set
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                                <div class="summary-item"><span>Total Days</span><strong>{{ row.plan.plansession_set.count }}</strong></div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================
+             EDIT PLAN MODAL
+        ================================================== -->
+        <div class="modal-overlay" id="editPlan{{ row.plan.id }}">
+            <div class="plan-builder-modal">
+                <form method="post" action="{% url 'update_plan' row.plan.id %}" id="editPlanForm{{ row.plan.id }}">
+                    {% csrf_token %}
+
+                    <div class="plans-header">
+                        <div>
+                            <h1>Edit Training Plan</h1>
+                            <p>Update the saved plan details, notes, and training day content.</p>
+                        </div>
+
+                        <div class="plans-header-actions">
+                            <button type="button" class="outline-btn" onclick="closePlanModal('editPlan{{ row.plan.id }}')">Back to List</button>
+                            <button type="submit" class="outline-btn">Save Draft</button>
+                            <button type="submit" class="primary-action-btn">Publish Plan</button>
+                        </div>
+                    </div>
+
+                    <div class="plans-builder-grid">
+                        <div class="plans-main-column">
+                            <div class="section-card">
+                                <h2>Edit Plan</h2>
+                                <p class="muted-text">Adjust the training plan based on the client's goal and available equipment.</p>
+
+                                {% include 'partials/plan_form_fields.html' with client=row.client plan=row.plan preferred_times=row.preferred_times %}
+                            </div>
+
+                            <button type="button" class="add-day-btn" onclick="addTrainingDay(this)">
+                                + Add Training Day
+                            </button>
+                        </div>
+
+                        <aside class="plans-side-column">
+                            <div class="section-card plan-summary-card">
+                                <h2>Plan Summary</h2>
+
+                                <div class="summary-stack">
+                                    <div class="summary-item"><span>Client</span><strong>{{ row.client.name }}</strong></div>
+                                    <div class="summary-item"><span>Plan Title</span><strong>{{ row.plan.plan_title|default:"Untitled Plan" }}</strong></div>
+                                    <div class="summary-item"><span>Goal</span><strong>{{ row.plan.goal_type }}</strong></div>
+                                    <div class="summary-item"><span>Level</span><strong>{{ row.plan.fitness_level }}</strong></div>
+                                    <div class="summary-item"><span>Frequency</span><strong>{{ row.plan.training_frequency }}</strong></div>
+                                    <div class="summary-item"><span>Equipment</span><strong>{{ row.plan.equipment_access }}</strong></div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- =================================================
+             DELETE PLAN MODAL
+        ================================================== -->
+        <div class="modal-overlay" id="deletePlan{{ row.plan.id }}">
+            <div class="modal-card delete-modal-card">
+                <div class="modal-header">
+                    <h2>Delete Plan</h2>
+                    <button type="button" class="modal-close-btn" onclick="closePlanModal('deletePlan{{ row.plan.id }}')">×</button>
+                </div>
+
+                <p>Are you sure you want to delete <strong>{{ row.plan.plan_title }}</strong>?</p>
+
+                <form method="post" action="{% url 'delete_plan' row.plan.id %}" class="modal-actions">
+                    {% csrf_token %}
+                    <button type="button" class="outline-btn" onclick="closePlanModal('deletePlan{{ row.plan.id }}')">Cancel</button>
+                    <button type="submit" class="delete-btn">Delete Plan</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- =================================================
+             CREATE PLAN MODAL
+        ================================================== -->
+        {% else %}
+        <div class="modal-overlay" id="createPlan{{ row.client.id }}">
+            <div class="plan-builder-modal">
+                <form method="post" action="{% url 'create_plan' row.client.id %}" id="createPlanForm{{ row.client.id }}">
+                    {% csrf_token %}
+
+                    <div class="plans-header">
+                        <div>
+                            <h1>Create Training Plan</h1>
+                            <p>Create a personalised plan for {{ row.client.name }}.</p>
+                        </div>
+
+                        <div class="plans-header-actions">
+                            <button type="button" class="outline-btn" onclick="closePlanModal('createPlan{{ row.client.id }}')">Back to List</button>
+                            <button type="submit" class="outline-btn">Save Draft</button>
+                            <button type="submit" class="primary-action-btn">Publish Plan</button>
+                        </div>
+                    </div>
+
+                    <div class="plans-builder-grid">
+                        <div class="plans-main-column">
+                            <div class="section-card">
+                                <h2>Add Plan</h2>
+                                <p class="muted-text">Build and personalise the training plan for this client.</p>
+
+                                <button type="button" class="ai-generate-btn" onclick="generatePlanSuggestion('{{ row.client.id }}')">
+                                    Generate AI Plan Suggestion
+                                </button>
+
+                                {% include 'partials/plan_form_fields.html' with client=row.client preferred_times=row.preferred_times %}
+                            </div>
+
+                            <button type="button" class="add-day-btn" onclick="addTrainingDay(this)">
+                                + Add Training Day
+                            </button>
+                        </div>
+
+                        <aside class="plans-side-column">
+                            <div class="section-card plan-summary-card">
+                                <h2>Plan Summary</h2>
+
+                                <div class="summary-stack">
+                                    <div class="summary-item"><span>Client</span><strong>{{ row.client.name }}</strong></div>
+                                    <div class="summary-item"><span>Plan Title</span><strong>Untitled Plan</strong></div>
+                                    <div class="summary-item"><span>Goal</span><strong>{{ row.client.goal }}</strong></div>
+                                    <div class="summary-item"><span>Level</span><strong>Beginner</strong></div>
+                                    <div class="summary-item"><span>Frequency</span><strong>2 Days / Week</strong></div>
+                                    <div class="summary-item"><span>Equipment</span><strong>Full Gym</strong></div>
+                                    <div class="summary-item">
+                                        <span>Preferred Times</span>
+                                        <strong>
+                                            {% if row.preferred_times %}
+                                                {% for time in row.preferred_times %}
+                                                    {{ time.preferred_day }}, {{ time.preferred_time }}{% if not forloop.last %} • {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                Not set
+                                            {% endif %}
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+</section>
+
+<script>
+    function openPlanModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.classList.add("show", "active");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closePlanModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.classList.remove("show", "active");
+        document.body.style.overflow = "";
+    }
+
+    function getWorkoutDayHtml(dayNumber, data = {}) {
+        return `
+            <div class="section-card workout-day-card">
+                <div class="workout-day-header">
+                    <h2>Day ${dayNumber} - Training Session</h2>
+                    <button type="button" class="remove-day-btn" onclick="removeTrainingDay(this)">Remove Day</button>
+                </div>
+
+                <div class="auth-field">
+                    <label>Session Day Label</label>
+                    <input name="session_day_label" value="${data.session || ''}" placeholder="Day ${dayNumber} - Full Body Strength">
+                </div>
+
+                <div class="form-grid">
+                    <div class="auth-field">
+                        <label>Exercise Name</label>
+                        <input name="exercise_name" value="${data.exercise || ''}" placeholder="Goblet Squat">
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Description</label>
+                        <input name="exercise_description" value="${data.description || ''}" placeholder="Lower body strength and movement control.">
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Sets</label>
+                        <input name="sets_count" type="number" value="${data.sets || ''}" placeholder="3" min="0">
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Reps</label>
+                        <input name="reps_count" type="number" value="${data.reps || ''}" placeholder="10" min="0">
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Rest Seconds</label>
+                        <input name="rest_seconds" type="number" value="${data.rest || ''}" placeholder="60" min="0">
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Exercise Notes</label>
+                        <input name="exercise_notes" value="${data.notes || ''}" placeholder="Keep chest lifted and control the descent.">
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renumberTrainingDays(container) {
+        container.querySelectorAll(".workout-day-card").forEach((card, index) => {
+            const heading = card.querySelector("h2");
+            if (heading) heading.textContent = `Day ${index + 1} - Training Session`;
+        });
+    }
+
+    function addTrainingDay(button) {
+        const mainColumn = button.closest(".plans-main-column");
+        if (!mainColumn) return;
+
+        const dayCount = mainColumn.querySelectorAll(".workout-day-card").length + 1;
+        button.insertAdjacentHTML("beforebegin", getWorkoutDayHtml(dayCount));
+    }
+
+    function removeTrainingDay(button) {
+        const mainColumn = button.closest(".plans-main-column");
+        const cards = mainColumn.querySelectorAll(".workout-day-card");
+
+        if (cards.length > 1) {
+            button.closest(".workout-day-card").remove();
+            renumberTrainingDays(mainColumn);
+        }
+    }
+
+    function getDayCountFromFrequency(frequencyText) {
+        const match = frequencyText.match(/\d+/);
+        return match ? parseInt(match[0], 10) : 2;
+    }
+
+    function generatePlanSuggestion(clientId) {
+        const modal = document.getElementById("createPlan" + clientId);
+        if (!modal) return;
+
+        const goal = modal.querySelector("[name='goal_type']").value;
+        const title = modal.querySelector("[name='plan_title']");
+        const frequency = modal.querySelector("[name='training_frequency']");
+        const notes = modal.querySelector("[name='notes']");
+        const mainColumn = modal.querySelector(".plans-main-column");
+        const addDayButton = modal.querySelector(".add-day-btn");
+
+        const suggestions = {
+            "Weight Loss": {
+                title: "Fat Loss Foundations",
+                frequency: "3 Days / Week",
+                focus: "fat loss, conditioning, and consistency",
+                note: "Prioritise sustainable calorie-burning sessions with strength work to protect muscle mass. Start with manageable volume, monitor recovery, and increase conditioning intensity only when the client can complete sessions consistently.",
+                days: [
+                    ["Day 1 - Full Body Strength", "Goblet Squat", "Lower body strength and movement control.", "3", "10", "60", "Keep chest lifted and control the descent."],
+                    ["Day 2 - Conditioning", "Row Erg Intervals", "Short conditioning intervals to improve work capacity.", "8", "45", "30", "Keep pace steady across all rounds."],
+                    ["Day 3 - Strength Circuit", "Dumbbell Romanian Deadlift", "Posterior chain strength with moderate intensity.", "3", "12", "60", "Hinge from the hips and avoid rounding the back."]
+                ]
+            },
+            "Muscle Gain": {
+                title: "Hypertrophy Build Block",
+                frequency: "4 Days / Week",
+                focus: "hypertrophy and progressive overload",
+                note: "Use a structured split with enough weekly volume for each major muscle group. Track load, reps, and recovery so progress can increase gradually without sacrificing form.",
+                days: [
+                    ["Day 1 - Upper Push", "Incline Dumbbell Press", "Upper chest focused pressing movement.", "4", "8", "90", "Use controlled tempo and full range."],
+                    ["Day 2 - Lower Body", "Leg Press", "Quad and glute focused strength work.", "4", "10", "90", "Control the lowering phase."],
+                    ["Day 3 - Upper Pull", "Lat Pulldown", "Back width and pulling strength.", "4", "10", "75", "Pull elbows down and avoid shrugging."],
+                    ["Day 4 - Accessories", "Dumbbell Lateral Raise", "Shoulder isolation for hypertrophy.", "3", "12", "60", "Keep movement controlled and avoid swinging."]
+                ]
+            },
+            "Strength Training": {
+                title: "Strength Progression Plan",
+                frequency: "3 Days / Week",
+                focus: "compound lifts and strength progression",
+                note: "Build the program around main compound movements with clear load progression. Keep volume moderate, prioritise technique, and use longer rest periods so each working set is high quality.",
+                days: [
+                    ["Day 1 - Lower Strength", "Back Squat", "Primary lower body strength movement.", "5", "5", "120", "Brace before each rep and control depth."],
+                    ["Day 2 - Upper Strength", "Bench Press", "Primary upper body pressing movement.", "5", "5", "120", "Keep shoulder blades stable."],
+                    ["Day 3 - Pull Strength", "Deadlift", "Full body pulling strength movement.", "4", "5", "150", "Keep bar close and maintain a neutral spine."]
+                ]
+            },
+            "Endurance": {
+                title: "Endurance Conditioning Plan",
+                frequency: "3 Days / Week",
+                focus: "aerobic capacity and conditioning",
+                note: "Use a mix of steady-state work and intervals to build endurance without overloading the client too quickly. Progress should focus on pacing control, session completion, and gradual increases in duration.",
+                days: [
+                    ["Day 1 - Interval Conditioning", "Bike Intervals", "Cardio intervals for aerobic capacity.", "8", "45", "30", "Keep pacing consistent."],
+                    ["Day 2 - Strength Endurance", "Kettlebell Deadlift", "Lower body endurance and movement control.", "3", "15", "45", "Use a moderate load and steady tempo."],
+                    ["Day 3 - Steady Cardio", "Treadmill Incline Walk", "Low impact aerobic conditioning.", "1", "20", "0", "Keep intensity conversational but purposeful."]
+                ]
+            },
+            "Posture & Mobility": {
+                title: "Mobility Reset Plan",
+                frequency: "2 Days / Week",
+                focus: "mobility, posture, and movement quality",
+                note: "Focus on controlled movement, joint range, and postural strength before adding high intensity work. Progress should come from better movement control, reduced discomfort, and improved consistency.",
+                days: [
+                    ["Day 1 - Upper Mobility", "Band Pull Apart", "Upper back activation and posture support.", "3", "15", "30", "Keep shoulders relaxed and controlled."],
+                    ["Day 2 - Lower Mobility", "Hip Flexor Stretch", "Mobility drill for hip positioning.", "3", "30", "30", "Move slowly and avoid forcing range."]
+                ]
+            },
+            "General Fitness": {
+                title: "General Fitness Plan",
+                frequency: "2 Days / Week",
+                focus: "balanced strength, cardio, and mobility",
+                note: "Create a balanced routine that builds confidence across strength, movement quality, and basic conditioning. Keep the first block simple so the client can develop consistency before progressing intensity.",
+                days: [
+                    ["Day 1 - Full Body", "Bodyweight Squat", "Foundational lower body movement.", "3", "12", "45", "Focus on posture and control."],
+                    ["Day 2 - Conditioning Mix", "Step Ups", "Low impact conditioning and leg endurance.", "3", "12", "45", "Keep rhythm steady and controlled."]
+                ]
+            }
+        };
+
+        const selected = suggestions[goal] || suggestions["General Fitness"];
+        const targetDayCount = getDayCountFromFrequency(selected.frequency);
+        const generatedDays = selected.days.slice(0, targetDayCount);
+
+        title.value = selected.title;
+        frequency.value = selected.frequency;
+        notes.value = "Recommended Frequency: " + selected.frequency + "\nFocus Area: " + selected.focus + "\n" + selected.note;
+
+        mainColumn.querySelectorAll(".workout-day-card").forEach((card) => card.remove());
+
+        generatedDays.forEach((day, index) => {
+            addDayButton.insertAdjacentHTML("beforebegin", getWorkoutDayHtml(index + 1, {
+                session: day[0],
+                exercise: day[1],
+                description: day[2],
+                sets: day[3],
+                reps: day[4],
+                rest: day[5],
+                notes: day[6],
+            }));
+        });
+    }
+</script>
+{% endblock %}

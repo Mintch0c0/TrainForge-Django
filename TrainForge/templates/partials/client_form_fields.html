@@ -1,0 +1,62 @@
+<div class="form-grid">
+    <div class="auth-field">
+        <label>Name</label>
+        <input name="name" value="{{ client.name|default:'' }}" placeholder="Enter client name" required>
+    </div>
+
+    <div class="auth-field">
+        <label>Goal</label>
+        <select name="goal" class="clients-filter">
+            <option>Weight Loss</option>
+            <option>Muscle Gain</option>
+            <option>General Fitness</option>
+            <option>Strength Training</option>
+            <option>Endurance</option>
+            <option>Posture & Mobility</option>
+        </select>
+    </div>
+
+    <div class="auth-field">
+        <label>Status</label>
+        <select name="status" class="clients-filter">
+            <option>New</option>
+            <option>Onboarding</option>
+            <option>Active</option>
+            <option>At Risk</option>
+            <option>Completed</option>
+        </select>
+    </div>
+
+    <div class="auth-field">
+        <label>Email</label>
+        <input name="email" type="email" value="{{ client.email|default:'' }}" placeholder="Enter email" required>
+    </div>
+
+    <div class="auth-field">
+        <label>Phone</label>
+        <input name="phone" value="{{ client.phone|default:'' }}" placeholder="Enter phone number">
+    </div>
+
+    <div class="auth-field">
+        <label>Preferred Day</label>
+        <select name="preferred_day" class="clients-filter">
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+            <option>Saturday</option>
+            <option>Sunday</option>
+        </select>
+    </div>
+
+    <div class="auth-field">
+        <label>Preferred Time</label>
+        <input name="preferred_time" type="time">
+    </div>
+</div>
+
+<div class="auth-field">
+    <label>Notes</label>
+    <textarea name="notes" rows="4" class="client-notes-input" placeholder="Add notes about this client">{{ client.notes|default:'' }}</textarea>
+</div>

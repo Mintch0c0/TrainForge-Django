@@ -1,0 +1,130 @@
+<div class="form-grid">
+    <div class="auth-field">
+        <label>Client</label>
+        <input value="{{ client.name }}" readonly>
+    </div>
+
+    <div class="auth-field">
+        <label>Plan Title</label>
+        <input value="{{ plan.plan_title }}" readonly>
+    </div>
+
+    <div class="auth-field">
+        <label>Goal Type</label>
+        <input value="{{ plan.goal_type }}" readonly>
+    </div>
+
+    <div class="auth-field">
+        <label>Fitness Level</label>
+        <input value="{{ plan.fitness_level }}" readonly>
+    </div>
+
+    <div class="auth-field">
+        <label>Training Frequency</label>
+        <input value="{{ plan.training_frequency }}" readonly>
+    </div>
+
+    <div class="auth-field">
+        <label>Equipment Access</label>
+        <input value="{{ plan.equipment_access }}" readonly>
+    </div>
+</div>
+
+<!-- Preferred Appointment Times -->
+<div class="preferred-times-summary-box">
+    <span>Preferred Appointment Times</span>
+
+    <div class="preferred-times-list">
+        {% if preferred_times %}
+            {% for time in preferred_times %}
+                <div class="preferred-time-chip">
+                    {{ time.preferred_day }}, {{ time.preferred_time }}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No preferred appointment times set.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- AI Insight -->
+<div class="modal-notes ai-insight-box">
+    <span>Plan Insight</span>
+
+    <p>
+        <strong>Recommended Frequency:</strong>
+        {{ plan.training_frequency }}
+    </p>
+
+    <p>
+        <strong>Focus Area:</strong>
+        {{ plan.goal_type }}
+    </p>
+
+    <p>
+        Use this structure to support {{ client.name }}
+        with a realistic plan based on their goal,
+        equipment access, and recovery capacity.
+    </p>
+</div>
+
+<!-- Trainer Notes -->
+<div class="auth-field">
+    <label>Limitations / Trainer Notes</label>
+
+    <textarea readonly>{{ plan.limitations_trainer_notes }}</textarea>
+</div>
+
+<!-- Workout Days -->
+{% for session in plan.plansession_set.all %}
+<div class="section-card workout-day-card">
+
+    <h2>{{ session.session_day_label }}</h2>
+
+    {% for exercise in session.trainingsessionexercise_set.all %}
+    <div class="form-grid">
+
+        <div class="auth-field">
+            <label>Exercise Name</label>
+            <input value="{{ exercise.exercise_name }}" readonly>
+        </div>
+
+        <div class="auth-field">
+            <label>Description</label>
+            <input value="{{ exercise.description }}" readonly>
+        </div>
+
+        <div class="auth-field">
+            <label>Sets</label>
+            <input value="{{ exercise.sets_count }}" readonly>
+        </div>
+
+        <div class="auth-field">
+            <label>Reps</label>
+            <input value="{{ exercise.reps_count }}" readonly>
+        </div>
+
+        <div class="auth-field">
+            <label>Rest Seconds</label>
+            <input value="{{ exercise.rest_seconds }}" readonly>
+        </div>
+
+        <div class="auth-field">
+            <label>Exercise Notes</label>
+            <input value="{{ exercise.trainer_notes }}" readonly>
+        </div>
+
+    </div>
+    {% empty %}
+        <p class="muted-text">
+            No exercises saved for this training day.
+        </p>
+    {% endfor %}
+
+</div>
+{% empty %}
+<div class="empty-state-card">
+    <h3>No training days saved</h3>
+    <p>This plan does not contain any workout days yet.</p>
+</div>
+{% endfor %}

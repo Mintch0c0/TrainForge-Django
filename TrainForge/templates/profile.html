@@ -1,0 +1,22 @@
+{% extends 'app_base.html' %}
+
+{% block title %}TrainForge | Profile{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-page">
+    <div class="section-card profile-card">
+        <div class="profile-badge profile-large">
+            {% if profile_picture %}
+                <img src="{{ profile_picture }}" alt="Profile picture">
+            {% else %}
+                {{ profile_initials }}
+            {% endif %}
+        </div>
+
+        <h1>{{ request.user.get_full_name|default:request.user.username }}</h1>
+        <p>{{ request.user.email }}</p>
+
+        <a href="{% url 'dashboard' %}" class="profile-back-btn">Back to Dashboard</a>
+    </div>
+</section>
+{% endblock %}

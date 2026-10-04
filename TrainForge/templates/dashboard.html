@@ -1,0 +1,230 @@
+{% extends 'app_base.html' %}
+{% load static %}
+
+{% block title %}TrainForge | Dashboard{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<section class="dashboard-page">
+
+    <!-- Page header: title, month/year filter, and profile shortcut -->
+    <div class="dashboard-header">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Manage your clients, training plans, appointments, and progress in one place.</p>
+        </div>
+
+        <div class="dashboard-header-right">
+            <form method="get" class="month-filter-form">
+                <select name="month">
+                    {% for month in month_options %}
+                    <option value="{{ month.number }}" {% if selected_month == month.number %}selected{% endif %}>
+                        {{ month.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <input type="number" name="year" value="{{ selected_year }}">
+                <button type="submit">View</button>
+            </form>
+
+            <a href="{% url 'profile' %}" class="profile-badge">
+                {% if profile_picture %}
+                    <img src="{{ profile_picture }}" alt="Profile picture">
+                {% else %}
+                    {{ profile_initials }}
+                {% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <h3>Total Clients</h3>
+            <p>{{ total_clients }}</p>
+            <div class="accent-line"></div>
+        </div>
+
+        <div class="summary-card">
+            <h3>Upcoming Sessions</h3>
+            <p>{{ upcoming_sessions }}</p>
+            <div class="accent-line"></div>
+        </div>
+
+        <div class="summary-card">
+            <h3>Active Plans</h3>
+            <p>{{ active_plans }}</p>
+            <div class="accent-line"></div>
+        </div>
+
+        <div class="summary-card">
+            <h3>Session Frequency</h3>
+            <p>{{ session_frequency }}/wk</p>
+            <div class="accent-line"></div>
+        </div>
+    </div>
+
+    <!-- Progress chart and upcoming appointments -->
+    <div class="dashboard-grid two-column">
+        <div class="section-card">
+            <h2>Client Progress Overview</h2>
+
+            <div class="tf-chart">
+                <svg viewBox="0 0 620 260" preserveAspectRatio="none">
+                    <!-- Chart axis and grid -->
+                    <line x1="40" y1="25" x2="40" y2="220" class="chart-axis"></line>
+                    <line x1="40" y1="220" x2="590" y2="220" class="chart-axis"></line>
+                    <line x1="40" y1="171" x2="590" y2="171" class="chart-grid-line"></line>
+                    <line x1="40" y1="122" x2="590" y2="122" class="chart-grid-line"></line>
+                    <line x1="40" y1="73" x2="590" y2="73" class="chart-grid-line"></line>
+
+                    <!-- Dynamic session lines -->
+                    <polyline
+                        points="{% for point in chart_points %}{{ point.x }},{{ point.completed_y }} {% endfor %}"
+                        class="line-completed"
+                    ></polyline>
+
+                    <polyline
+                        points="{% for point in chart_points %}{{ point.x }},{{ point.frequency_y }} {% endfor %}"
+                        class="line-frequency"
+                    ></polyline>
+
+                    <!-- Dynamic data points and week labels -->
+                    {% for point in chart_points %}
+                    <circle cx="{{ point.x }}" cy="{{ point.completed_y }}" r="5" class="dot-completed"></circle>
+                    <circle cx="{{ point.x }}" cy="{{ point.frequency_y }}" r="5" class="dot-frequency"></circle>
+                    <text x="{{ point.x }}" y="248" text-anchor="middle" class="chart-week-label">
+                        {{ point.label }}
+                    </text>
+                    {% endfor %}
+                </svg>
+
+                {% for point in chart_points %}
+                <div class="chart-hover-zone zone-{{ forloop.counter }}">
+                    <div class="chart-popup">
+                        <strong>{{ point.label }}</strong>
+                        <span class="cyan">Completed Sessions : {{ point.completed }}</span>
+                        <span class="pink">Session Frequency : {{ point.frequency }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>Upcoming Appointments</h2>
+
+            {% if upcoming_appointments %}
+            <div class="list-group">
+                {% for appointment in upcoming_appointments %}
+                <div class="list-item">
+                    <div>
+                        <strong>{{ appointment.client.name }}</strong>
+                        <p>{{ appointment.appointment_date }} • {{ appointment.appointment_time }}</p>
+                    </div>
+                    <span class="status-badge confirmed">Confirmed</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state-card">
+                <h3>No appointments yet</h3>
+                <p>Schedule appointments to populate this panel.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Activity feed and navigation shortcuts -->
+    <div class="dashboard-grid two-column">
+        <div class="section-card">
+            <h2>Recent Client Activity</h2>
+
+            <ul class="activity-list">
+                {% for client in recent_clients %}
+                <li>{{ client.name }} updated their client profile</li>
+                {% endfor %}
+
+                {% for plan in recent_plans %}
+                <li>{{ plan.client.name }} has an active training plan</li>
+                {% endfor %}
+
+                {% for appointment in recent_appointments %}
+                <li>{{ appointment.client.name }} has a {{ appointment.session_type }} appointment scheduled</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="section-card">
+            <h2>Quick Actions</h2>
+
+            <div class="quick-actions">
+                <a href="{% url 'clients' %}">Add New Client</a>
+                <a href="{% url 'plans' %}">Create Training Plan</a>
+                <a href="{% url 'appointments' %}">Schedule Appointment</a>
+                <a href="{% url 'progress' %}">View Progress Reports</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session frequency bar chart and dashboard insight -->
+    <div class="dashboard-grid two-column">
+        <div class="section-card">
+            <h2>Session Frequency Breakdown</h2>
+
+            <div class="tf-chart no-bottom-labels">
+                <svg viewBox="0 0 620 260" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#8b5cf6"></stop>
+                            <stop offset="100%" stop-color="#ff2fb3"></stop>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Chart axis and grid -->
+                    <line x1="40" y1="25" x2="40" y2="220" class="chart-axis"></line>
+                    <line x1="40" y1="220" x2="590" y2="220" class="chart-axis"></line>
+                    <line x1="40" y1="171" x2="590" y2="171" class="chart-grid-line"></line>
+                    <line x1="40" y1="122" x2="590" y2="122" class="chart-grid-line"></line>
+                    <line x1="40" y1="73" x2="590" y2="73" class="chart-grid-line"></line>
+
+                    <!-- Dynamic weekly bars -->
+                    {% for point in chart_points %}
+                    <rect
+                        x="{{ point.x|add:-42 }}"
+                        y="{{ point.bar_y }}"
+                        width="84"
+                        height="{{ point.bar_height }}"
+                        rx="8"
+                        class="bar-frequency"
+                    ></rect>
+                    {% endfor %}
+                </svg>
+
+                {% for point in chart_points %}
+                <div class="chart-hover-zone zone-{{ forloop.counter }}">
+                    <div class="chart-popup">
+                        <strong>{{ point.label }}</strong>
+                        <span class="purple">Sessions : {{ point.frequency }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2>Dashboard Insight</h2>
+
+            <div class="ai-insight-card">
+                <span>AI Summary</span>
+                <p>{{ ai_insight }}</p>
+            </div>
+        </div>
+    </div>
+
+</section>
+{% endblock %}

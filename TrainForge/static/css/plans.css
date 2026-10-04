@@ -1,0 +1,303 @@
+/* ── plans.css ── */
+
+/* Page layout */
+.plans-page { padding: 36px; }
+
+.plans-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+.plans-header h1 { font-size: 40px; margin-bottom: 8px; }
+.plans-header p { color: #b8c7df; }
+
+/* Filter toolbar */
+.plans-toolbar {
+    display: grid;
+    grid-template-columns: 1fr 120px;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.plans-search,
+.auth-field input,
+.auth-field select,
+.client-notes-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(15, 23, 42, 0.85);
+    color: white;
+}
+
+/* Plan list table */
+.plan-list-card {
+    background: rgba(15, 23, 42, 0.74);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 22px;
+    overflow: hidden;
+}
+
+.plan-list-header,
+.plan-list-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.4fr;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 22px;
+}
+
+.plan-list-header {
+    color: #a8b5c8;
+    font-weight: 900;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.plan-list-row { border-bottom: 1px solid rgba(255,255,255,0.06); }
+
+.plan-client-cell p,
+.plan-preferred-time-text { color: #a8b5c8; margin-top: 6px; }
+
+.plan-status-badge {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
+}
+.has-plan { color: #22d3ee; background: rgba(34,211,238,0.12); }
+.no-plan  { color: #a8b5c8; background: rgba(255,255,255,0.08); }
+
+.plan-row-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Buttons */
+.primary-action-btn,
+.filter-btn {
+    background: linear-gradient(90deg, #38cfff, #f03bbb);
+}
+
+.primary-action-btn,
+.filter-btn,
+.ghost-btn,
+.outline-btn,
+.delete-btn {
+    border: none;
+    padding: 11px 14px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.ghost-btn  { background: rgba(255,255,255,0.08); }
+.outline-btn { background: transparent; border: 1px solid rgba(255,255,255,0.12); }
+.delete-btn { background: rgba(239,68,68,0.9); }
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: rgba(0,0,0,0.68);
+    z-index: 50;
+    padding: 24px;
+}
+.modal-overlay.show,
+.modal-overlay.active { display: grid; }
+
+.modal-card {
+    width: min(760px, 96vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 28px;
+}
+.large-modal { width: min(980px, 96vw); }
+
+.modal-header,
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.modal-close-btn {
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.form-grid,
+.modal-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.auth-field { display: grid; gap: 8px; margin-bottom: 16px; }
+
+.modal-detail-item,
+.modal-notes,
+.workout-day-card {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.modal-detail-item span,
+.modal-notes span { color: #22d3ee; font-weight: 900; }
+
+.ai-insight-box { border-color: rgba(255,47,179,0.25); }
+
+.ai-generate-btn {
+    width: 100%;
+    margin-bottom: 22px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+    color: white;
+    border-radius: 18px;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+}
+.ai-generate-btn:hover {
+    border-color: #ff46d6;
+    box-shadow: 0 0 25px rgba(255, 70, 214, 0.18);
+}
+
+/* Plan builder full-screen modal */
+.plan-builder-modal {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background:
+        radial-gradient(circle at top right, rgba(236,72,153,0.16), transparent 34%),
+        linear-gradient(135deg, #090d22, #10152e);
+    padding: 36px;
+}
+
+.plans-builder-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.plans-main-column,
+.plans-side-column { display: grid; gap: 22px; }
+.plans-side-column { position: sticky; top: 20px; }
+
+.plans-header-actions { display: flex; gap: 12px; }
+
+.muted-text { color: #a8b5c8; margin-bottom: 22px; }
+
+/* Preferred times chips */
+.preferred-times-summary-box {
+    margin: 18px 0;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.preferred-times-summary-box span { color: #a8b5c8; font-weight: 800; }
+
+.preferred-times-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.preferred-time-chip {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(34,211,238,0.15);
+    border: 1px solid rgba(34,211,238,0.35);
+    color: white;
+    font-weight: 800;
+}
+
+/* Plan summary sidebar card */
+.plan-summary-card {
+    background:
+        radial-gradient(circle at bottom right, rgba(236,72,153,0.16), transparent 40%),
+        rgba(15, 23, 42, 0.8);
+    border-color: rgba(56,207,255,0.35);
+}
+
+.summary-stack { display: grid; gap: 14px; }
+
+.summary-item {
+    padding: 16px;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.summary-item span { display: block; color: #a8b5c8; font-size: 12px; margin-bottom: 6px; }
+.summary-item strong { color: white; }
+
+.add-day-btn {
+    width: 100%;
+    margin-top: 6px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: white;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.add-day-btn:hover {
+    border-color: #38cfff;
+    box-shadow: 0 0 20px rgba(56,207,255,0.16);
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .plans-builder-grid { grid-template-columns: 1fr; }
+    .plans-side-column { position: static; }
+    .plans-header-actions { flex-wrap: wrap; }
+
+    .plan-list-header,
+    .plan-list-row,
+    .form-grid,
+    .modal-details-grid,
+    .plans-toolbar { grid-template-columns: 1fr; }
+}
+
+/* Dynamic workout-day controls */
+.workout-day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.remove-day-btn {
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(239,68,68,0.14);
+    color: #ff9b9b;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.remove-day-btn:hover {
+    background: rgba(239,68,68,0.24);
+}
+
+.readonly-workout-day {
+    margin-top: 18px;
+}

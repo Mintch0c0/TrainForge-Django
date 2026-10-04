@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}TrainForge | Home{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/landing.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+
+    <!-- =========================================================
+         NAVIGATION
+    ========================================================== -->
+    <header class="landing-navbar">
+        <div class="landing-logo">TrainForge</div>
+    </header>
+
+    <main class="landing-main">
+
+        <!-- =====================================================
+             HERO SECTION
+        ====================================================== -->
+        <section class="hero-section">
+            <div class="hero-text">
+                <p class="hero-tag">Smart Fitness Coaching Platform</p>
+
+                <h1>
+                    Build stronger client journeys with
+                    <span>TrainForge</span>
+                </h1>
+
+                <p class="hero-description">
+                    Manage clients, create training plans, schedule sessions, and track progress
+                    — all in one powerful dashboard designed for modern personal trainers.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="{% url 'auth' %}" class="hero-primary-btn">Get Started</a>
+                    <a href="#features" class="hero-secondary-btn">Explore Features</a>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="hero-stat-card">
+                        <h3>500+</h3>
+                        <p>Active Trainers</p>
+                    </div>
+
+                    <div class="hero-stat-card">
+                        <h3>12k+</h3>
+                        <p>Sessions Managed</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="hero-dashboard-preview">
+                    <div class="preview-topbar"></div>
+
+                    <div class="preview-cards">
+                        <div class="preview-card large"></div>
+                        <div class="preview-card small"></div>
+                        <div class="preview-card small"></div>
+                    </div>
+
+                    <div class="preview-chart"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             FEATURES SECTION
+        ====================================================== -->
+        <section class="features-section" id="features">
+            <div class="section-heading">
+                <p class="section-tag">Core Features</p>
+                <h2>Everything trainers need in one place</h2>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Client Management</h3>
+                    <p>Track client goals, notes, and performance in one place.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Training Plans</h3>
+                    <p>Create personalised structured workout plans easily.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Scheduling</h3>
+                    <p>Organise sessions with a smart calendar system.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Progress Tracking</h3>
+                    <p>Visualise client progress through data and analytics.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             WHY TRAINFORGE SECTION
+        ====================================================== -->
+        <section class="why-section" id="why">
+            <div class="section-heading">
+                <p class="section-tag">Why TrainForge</p>
+                <h2>Designed for modern trainers</h2>
+            </div>
+
+            <div class="why-grid">
+                <div class="why-card">
+                    <h3>All-in-One Platform</h3>
+                    <p>No more switching tools. Everything is in one dashboard.</p>
+                </div>
+
+                <div class="why-card">
+                    <h3>Time Efficient</h3>
+                    <p>Automate scheduling and reduce admin work.</p>
+                </div>
+
+                <div class="why-card">
+                    <h3>Better Client Results</h3>
+                    <p>Track and improve client consistency and outcomes.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             CONTACT SECTION
+        ====================================================== -->
+        <section class="contact-section" id="contact">
+            <div class="section-heading">
+                <p class="section-tag">Contact</p>
+                <h2>Get in touch</h2>
+            </div>
+
+            <div class="contact-card">
+                <p><strong>Email:</strong> support@trainforge.com</p>
+                <p><strong>Phone:</strong> +61 412 345 678</p>
+                <p><strong>Location:</strong> Brisbane, Australia</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+    <footer class="landing-footer">
+        <p>© 2026 TrainForge. All rights reserved.</p>
+    </footer>
+
+</div>
+{% endblock %}

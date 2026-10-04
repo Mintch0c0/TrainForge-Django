@@ -1,0 +1,396 @@
+{% extends 'app_base.html' %}
+{% load static %}
+
+{% block title %}TrainForge | Appointments{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/appointments.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<section class="appointments-page">
+
+    <!-- Page header -->
+    <div class="appointments-header">
+        <div>
+            <h1>Appointments</h1>
+            <p>Schedule client sessions and manage them through a calendar view.</p>
+        </div>
+
+        <button type="button" class="primary-action-btn" onclick="openModal('addAppointmentModal')">
+            + Add Appointment
+        </button>
+    </div>
+
+    <!-- Calendar and upcoming appointments -->
+    <div class="appointments-grid">
+
+        <div class="section-card calendar-card">
+            <div class="calendar-top">
+                <h2>Calendar</h2>
+                <span>{{ current_month_name }} {{ current_year }}</span>
+            </div>
+
+            <div class="calendar-month-grid">
+                <div class="calendar-day-name">Mon</div>
+                <div class="calendar-day-name">Tue</div>
+                <div class="calendar-day-name">Wed</div>
+                <div class="calendar-day-name">Thu</div>
+                <div class="calendar-day-name">Fri</div>
+                <div class="calendar-day-name">Sat</div>
+                <div class="calendar-day-name">Sun</div>
+
+                {% for day in calendar_days %}
+                    <div class="calendar-day {% if not day.in_month %}muted-day{% endif %}">
+                        <span class="day-number">{{ day.date.day }}</span>
+
+                        {% for appointment in day.appointments %}
+                            <button
+                                type="button"
+                                class="calendar-event"
+                                onclick="openModal('viewAppointment{{ appointment.id }}')"
+                            >
+                                {{ appointment.appointment_time }} {{ appointment.client.name }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="appointments-side-column">
+            <div class="section-card">
+                <h2>Upcoming Appointments</h2>
+
+                <div class="appointments-list">
+                    {% if upcoming_appointments %}
+                        {% for appointment in upcoming_appointments %}
+                        <div class="appointment-item" onclick="openModal('viewAppointment{{ appointment.id }}')">
+                            <strong>{{ appointment.client.name }}</strong>
+                            <p>{{ appointment.appointment_date }} • {{ appointment.appointment_time }}</p>
+                            <span class="appointment-type-badge">{{ appointment.session_type }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state-card">
+                            <h3>No appointments yet</h3>
+                            <p>Add your first appointment to get started.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment detail modals -->
+    {% for appointment in appointments %}
+    <div class="modal-overlay" id="viewAppointment{{ appointment.id }}">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Appointment Details</h2>
+                <button type="button" class="modal-close-btn" onclick="closeModal('viewAppointment{{ appointment.id }}')">×</button>
+            </div>
+
+            <div class="modal-details-grid">
+                <div class="modal-detail-item">
+                    <span>Client</span>
+                    <strong>{{ appointment.client.name }}</strong>
+                </div>
+
+                <div class="modal-detail-item">
+                    <span>Date</span>
+                    <strong>{{ appointment.appointment_date }}</strong>
+                </div>
+
+                <div class="modal-detail-item">
+                    <span>Time</span>
+                    <strong>{{ appointment.appointment_time }}</strong>
+                </div>
+
+                <div class="modal-detail-item">
+                    <span>Session Type</span>
+                    <strong>{{ appointment.session_type }}</strong>
+                </div>
+            </div>
+
+            <div class="modal-notes">
+                <span>Notes</span>
+                <p>{{ appointment.note|default:"No notes added." }}</p>
+            </div>
+
+            <form method="post" action="{% url 'delete_appointment' appointment.id %}" class="modal-actions">
+                {% csrf_token %}
+                <button type="button" class="outline-btn" onclick="closeModal('viewAppointment{{ appointment.id }}')">Close</button>
+                <button type="submit" class="delete-btn">Delete Appointment</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Add appointment modal -->
+    <div class="modal-overlay" id="addAppointmentModal">
+        <div class="modal-card large-modal">
+            <div class="modal-header">
+                <h2>Add Appointment</h2>
+                <button type="button" class="modal-close-btn" onclick="closeModal('addAppointmentModal')">×</button>
+            </div>
+
+            <form method="post" action="{% url 'add_appointment' %}" class="client-form">
+                {% csrf_token %}
+
+                <button type="button" class="ai-generate-btn" onclick="generateAppointmentSuggestion()">
+                    Generate AI Schedule Suggestion
+                </button>
+
+                <div class="form-grid">
+                    <div class="auth-field">
+                        <label>Client</label>
+
+                        <select name="client_id" id="appointmentClientInput" class="clients-filter" required onchange="updatePreferredTimeDisplay()">
+                            {% for client in clients %}
+                                <option value="{{ client.id }}">{{ client.name }}</option>
+                            {% empty %}
+                                <option value="">No clients available</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Session Type</label>
+                        <select name="session_type" class="clients-filter">
+                            <option>In-Person</option>
+                            <option>Online</option>
+                            <option>Consultation</option>
+                            <option>Progress Check-In</option>
+                        </select>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Date</label>
+                        <input type="date" name="appointment_date" id="appointmentDateInput" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Time</label>
+                        <input type="time" name="appointment_time" id="appointmentTimeInput" required>
+                    </div>
+                </div>
+
+                <div class="modal-notes preferred-times-summary-box">
+                    <span>Preferred Appointment Times</span>
+
+                    <div class="preferred-times-list">
+                        {% for client in clients %}
+                            <div class="preferred-client-times" data-client-id="{{ client.id }}">
+                                {% with preferred_times=client.clientpreferredtime_set.all %}
+                                    {% if preferred_times %}
+                                        {% for preferred in preferred_times %}
+                                            <button
+                                                type="button"
+                                                class="preferred-time-chip"
+                                                data-day="{{ preferred.preferred_day }}"
+                                                data-time="{{ preferred.preferred_time }}"
+                                                onclick="applyPreferredTime(this)"
+                                            >
+                                                {{ preferred.preferred_day }}, {{ preferred.preferred_time }}
+                                            </button>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p>No preferred appointment times set.</p>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="modal-notes ai-insight-box">
+                    <span>AI Scheduling Insight</span>
+                    <p id="appointmentAiText">
+                        Select a client and click the AI suggestion button to recommend a suitable session time.
+                    </p>
+                </div>
+
+                <div class="auth-field">
+                    <label>Notes</label>
+                    <textarea
+                        name="note"
+                        id="appointmentNoteInput"
+                        rows="4"
+                        class="client-notes-input"
+                        placeholder="Add any appointment notes..."
+                    ></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="outline-btn" onclick="closeModal('addAppointmentModal')">Cancel</button>
+                    <button type="submit" class="primary-action-btn">Save Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</section>
+
+<script>
+    /* Modal helpers */
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.classList.add("show", "active");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.classList.remove("show", "active");
+        document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("modal-overlay")) {
+            closeModal(event.target.id);
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            document.querySelectorAll(".modal-overlay.show, .modal-overlay.active").forEach(function (modal) {
+                closeModal(modal.id);
+            });
+        }
+    });
+
+    /* Preferred time and schedule helpers */
+    const weekdayMap = {
+        Sunday: 0,
+        Monday: 1,
+        Tuesday: 2,
+        Wednesday: 3,
+        Thursday: 4,
+        Friday: 5,
+        Saturday: 6
+    };
+
+    function getNextDateForDay(dayName) {
+        const today = new Date();
+
+        for (let i = 0; i < 14; i++) {
+            const candidate = new Date(today);
+            candidate.setDate(today.getDate() + i);
+
+            if (candidate.getDay() === weekdayMap[dayName]) {
+                const year = candidate.getFullYear();
+                const month = String(candidate.getMonth() + 1).padStart(2, "0");
+                const day = String(candidate.getDate()).padStart(2, "0");
+
+                return `${year}-${month}-${day}`;
+            }
+        }
+
+        return "";
+    }
+
+    function convertToTimeInputValue(timeText) {
+        if (!timeText) return "";
+
+        const cleanTime = timeText.trim().toLowerCase();
+
+        // Django may display 12:00 as "noon" and 00:00 as "midnight".
+        if (cleanTime === "noon") {
+            return "12:00";
+        }
+
+        if (cleanTime === "midnight") {
+            return "00:00";
+        }
+
+        // Already valid for HTML time input, e.g. 14:30 or 14:30:00.
+        const twentyFourHourMatch = cleanTime.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+        if (twentyFourHourMatch) {
+            return `${String(twentyFourHourMatch[1]).padStart(2, "0")}:${twentyFourHourMatch[2]}`;
+        }
+
+        // Handles Django/browser text like "6:32 p.m.", "6:32 PM", "11 a.m.", or "11 AM".
+        const match = cleanTime.match(/(\d{1,2})(?::(\d{2}))?\s*(a\.m\.|p\.m\.|am|pm)/i);
+        if (!match) return "";
+
+        let hour = parseInt(match[1], 10);
+        const minute = match[2] || "00";
+        const period = match[3].toLowerCase();
+
+        if (period.includes("p") && hour < 12) {
+            hour += 12;
+        }
+
+        if (period.includes("a") && hour === 12) {
+            hour = 0;
+        }
+
+        return `${String(hour).padStart(2, "0")}:${minute}`;
+    }
+
+    function updatePreferredTimeDisplay() {
+        const clientInput = document.getElementById("appointmentClientInput");
+        if (!clientInput) return;
+
+        const selectedClientId = clientInput.value;
+        const blocks = document.querySelectorAll(".preferred-client-times");
+
+        blocks.forEach(function (block) {
+            block.style.display = block.dataset.clientId === selectedClientId ? "flex" : "none";
+        });
+    }
+
+    function applyPreferredTime(chip) {
+        const preferredDay = chip.dataset.day;
+        const preferredTime = chip.dataset.time;
+
+        const dateInput = document.getElementById("appointmentDateInput");
+        const timeInput = document.getElementById("appointmentTimeInput");
+        const noteInput = document.getElementById("appointmentNoteInput");
+        const aiText = document.getElementById("appointmentAiText");
+
+        const suggestedDate = getNextDateForDay(preferredDay);
+        const suggestedTime = convertToTimeInputValue(preferredTime);
+
+        dateInput.value = suggestedDate;
+        timeInput.value = suggestedTime;
+
+        noteInput.value = `Scheduled based on the client's preferred appointment time: ${preferredDay}, ${preferredTime}.`;
+
+        if (suggestedDate && suggestedTime) {
+            aiText.innerText = `Selected preferred time: ${preferredDay}, ${preferredTime}. The next matching date has been added automatically.`;
+        } else {
+            aiText.innerText = `The preferred time was found, but the time format could not be converted automatically. Please choose the time manually.`;
+        }
+    }
+
+    function generateAppointmentSuggestion() {
+        const clientInput = document.getElementById("appointmentClientInput");
+        if (!clientInput || !clientInput.value) return;
+
+        const selectedClientId = clientInput.value;
+        const visibleBlock = document.querySelector(
+            `.preferred-client-times[data-client-id="${selectedClientId}"]`
+        );
+
+        const firstChip = visibleBlock ? visibleBlock.querySelector(".preferred-time-chip") : null;
+        const aiText = document.getElementById("appointmentAiText");
+
+        if (!firstChip) {
+            aiText.innerText = "No preferred appointment time is saved for this client yet. Choose a date and time manually.";
+            return;
+        }
+
+        applyPreferredTime(firstChip);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        updatePreferredTimeDisplay();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,299 @@
+{% extends 'app_base.html' %}
+{% load static %}
+
+{% block title %}TrainForge | Trainer Subscriptions{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/subscriptions.css' %}">
+{% endblock %}
+
+{% block app_content %}
+<section class="subscriptions-page">
+
+    <!-- Page header -->
+    <div class="subscriptions-header">
+        <div>
+            <h1>Trainer Subscriptions</h1>
+            <p>Admin interface to create, list, edit, and archive SaaS trainer subscriptions.</p>
+        </div>
+
+        <button type="button" class="primary-action-btn" onclick="openModal('createSubscriptionModal')">
+            + Create Subscription
+        </button>
+    </div>
+
+    <!-- Search and filters -->
+    <form method="get" class="subscriptions-toolbar">
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            class="clients-search"
+            placeholder="Search trainer, email, or business..."
+        >
+
+        <select name="status" class="clients-filter">
+            <option {% if status == "All Status" %}selected{% endif %}>All Status</option>
+            <option {% if status == "Active" %}selected{% endif %}>Active</option>
+            <option {% if status == "Archived" %}selected{% endif %}>Archived</option>
+        </select>
+
+        <select name="plan" class="clients-filter">
+            <option {% if plan == "All Plans" %}selected{% endif %}>All Plans</option>
+            <option {% if plan == "Starter" %}selected{% endif %}>Starter</option>
+            <option {% if plan == "Pro" %}selected{% endif %}>Pro</option>
+            <option {% if plan == "Premium" %}selected{% endif %}>Premium</option>
+        </select>
+
+        <button type="submit" class="filter-btn">Apply</button>
+    </form>
+
+    <p class="results-meta">
+        Showing <strong>{{ total_results }}</strong> trainer subscription{% if total_results != 1 %}s{% endif %}
+    </p>
+
+    <!-- Subscription table -->
+    <div class="subscription-table-card">
+        <div class="subscription-table-header">
+            <span>Trainer</span>
+            <span>Business</span>
+            <span>Plan</span>
+            <span>Status</span>
+            <span>Actions</span>
+        </div>
+
+        {% for subscription in subscriptions %}
+        <div class="subscription-table-row">
+            <div>
+                <strong>{{ subscription.user.first_name }}</strong>
+                <p>{{ subscription.user.email }}</p>
+            </div>
+
+            <span>{{ subscription.business_name }}</span>
+            <span>{{ subscription.plan_tier }}</span>
+
+            <span>
+                <span class="subscription-status {{ subscription.status|lower }}">
+                    {{ subscription.status }}
+                </span>
+            </span>
+
+            <div class="subscription-actions">
+                <button type="button" class="outline-btn" onclick="openModal('editSubscription{{ subscription.id }}')">
+                    Edit
+                </button>
+
+                {% if subscription.status != "Archived" %}
+                <button type="button" class="delete-btn" onclick="openModal('archiveSubscription{{ subscription.id }}')">
+                    Archive
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Edit subscription modal -->
+        <div class="modal-overlay" id="editSubscription{{ subscription.id }}">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h2>Edit Trainer Subscription</h2>
+                    <button type="button" class="modal-close-btn" onclick="closeModal('editSubscription{{ subscription.id }}')">×</button>
+                </div>
+
+                <form method="post" action="{% url 'edit_subscription' subscription.id %}">
+                    {% csrf_token %}
+
+                    <div class="form-grid">
+                        <div class="auth-field">
+                            <label>Full Name</label>
+                            <input name="full_name" value="{{ subscription.user.first_name }}" required>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Email</label>
+                            <input name="email" type="email" value="{{ subscription.user.email }}" required>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Password</label>
+                            <input name="password" type="password" placeholder="Leave blank to keep current password">
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Business Name</label>
+                            <input name="business_name" value="{{ subscription.business_name }}" required>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Role</label>
+                            <input value="Personal Trainer" readonly>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Plan Tier</label>
+                            <select name="plan_tier" class="clients-filter">
+                                <option {% if subscription.plan_tier == "Starter" %}selected{% endif %}>Starter</option>
+                                <option {% if subscription.plan_tier == "Pro" %}selected{% endif %}>Pro</option>
+                                <option {% if subscription.plan_tier == "Premium" %}selected{% endif %}>Premium</option>
+                            </select>
+                        </div>
+
+                        <div class="auth-field">
+                            <label>Status</label>
+                            <select name="status" class="clients-filter">
+                                <option {% if subscription.status == "Active" %}selected{% endif %}>Active</option>
+                                <option {% if subscription.status == "Archived" %}selected{% endif %}>Archived</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="outline-btn" onclick="closeModal('editSubscription{{ subscription.id }}')">Cancel</button>
+                        <button type="submit" class="primary-action-btn">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Archive subscription modal -->
+        <div class="modal-overlay" id="archiveSubscription{{ subscription.id }}">
+            <div class="modal-card delete-modal-card">
+                <div class="modal-header">
+                    <h2>Archive Trainer Subscription</h2>
+                    <button type="button" class="modal-close-btn" onclick="closeModal('archiveSubscription{{ subscription.id }}')">×</button>
+                </div>
+
+                <p>Are you sure you want to archive <strong>{{ subscription.user.first_name }}</strong>?</p>
+                <p class="warning-text">This keeps the record but marks it as inactive.</p>
+
+                <form method="post" action="{% url 'archive_subscription' subscription.id %}" class="modal-actions">
+                    {% csrf_token %}
+                    <button type="button" class="outline-btn" onclick="closeModal('archiveSubscription{{ subscription.id }}')">Cancel</button>
+                    <button type="submit" class="delete-btn">Archive Subscription</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state-card">
+            <h3>No trainer subscriptions found</h3>
+            <p>Try changing the search term or filters.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-bar">
+        {% if page_obj.has_previous %}
+            <a class="outline-btn" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&status={{ status }}&plan={{ plan }}">Previous</a>
+        {% else %}
+            <button type="button" class="outline-btn" disabled>Previous</button>
+        {% endif %}
+
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+            <a class="outline-btn" href="?page={{ page_obj.next_page_number }}&search={{ search }}&status={{ status }}&plan={{ plan }}">Next</a>
+        {% else %}
+            <button type="button" class="outline-btn" disabled>Next</button>
+        {% endif %}
+    </div>
+
+    <!-- Create subscription modal -->
+    <div class="modal-overlay" id="createSubscriptionModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Create Trainer Subscription</h2>
+                <button type="button" class="modal-close-btn" onclick="closeModal('createSubscriptionModal')">×</button>
+            </div>
+
+            <form method="post" action="{% url 'add_subscription' %}">
+                {% csrf_token %}
+
+                <div class="form-grid">
+                    <div class="auth-field">
+                        <label>Full Name</label>
+                        <input name="full_name" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Email</label>
+                        <input name="email" type="email" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Password</label>
+                        <input name="password" type="password" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Business Name</label>
+                        <input name="business_name" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Role</label>
+                        <input value="Personal Trainer" readonly>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Plan Tier</label>
+                        <select name="plan_tier" class="clients-filter">
+                            <option>Starter</option>
+                            <option>Pro</option>
+                            <option>Premium</option>
+                        </select>
+                    </div>
+
+                    <div class="auth-field">
+                        <label>Status</label>
+                        <select name="status" class="clients-filter">
+                            <option>Active</option>
+                            <option>Archived</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="outline-btn" onclick="closeModal('createSubscriptionModal')">Cancel</button>
+                    <button type="submit" class="primary-action-btn">Create Subscription</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</section>
+
+<!-- Modal helpers -->
+<script>
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.classList.add("show", "active");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.classList.remove("show", "active");
+        document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("modal-overlay")) {
+            closeModal(event.target.id);
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            document
+                .querySelectorAll(".modal-overlay.show, .modal-overlay.active")
+                .forEach(function (modal) {
+                    closeModal(modal.id);
+                });
+        }
+    });
+</script>
+{% endblock %}

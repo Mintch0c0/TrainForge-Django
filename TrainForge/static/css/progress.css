@@ -1,0 +1,434 @@
+/* =========================================================
+   PROGRESS PAGE LAYOUT
+========================================================= */
+
+.progress-page {
+    padding: 36px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.progress-header h1 {
+    font-size: 40px;
+    margin-bottom: 8px;
+}
+
+.progress-header p {
+    color: #b8c7df;
+}
+
+.progress-toolbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.progress-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.progress-main-column,
+.progress-side-column {
+    display: grid;
+    gap: 22px;
+}
+
+/* =========================================================
+   CARDS AND SUMMARY BLOCKS
+========================================================= */
+
+.section-card {
+    background: rgba(15, 23, 42, 0.74);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 22px;
+    padding: 26px;
+}
+
+.section-card h2 {
+    margin-bottom: 20px;
+}
+
+.summary-stack {
+    display: grid;
+    gap: 14px;
+}
+
+.summary-item,
+.modal-detail-item,
+.modal-notes {
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.summary-item span,
+.modal-detail-item span,
+.modal-notes span {
+    color: #22d3ee;
+    display: block;
+    font-weight: 900;
+    margin-bottom: 6px;
+}
+
+.ai-insight-box {
+    border-color: rgba(255,47,179,0.25);
+    background: linear-gradient(120deg, rgba(34,211,238,0.08), rgba(255,47,179,0.10));
+}
+
+.empty-state-card {
+    padding: 32px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.04);
+    text-align: center;
+    color: #a8b5c8;
+}
+
+.empty-state-card h3 {
+    color: white;
+    margin-bottom: 8px;
+}
+
+/* =========================================================
+   WEIGHT CHART
+========================================================= */
+
+.svg-chart-box {
+    height: 320px;
+    padding: 10px;
+}
+
+.svg-chart-box svg {
+    width: 100%;
+    height: 100%;
+}
+
+.chart-axis {
+    stroke: rgba(148, 163, 184, 0.7);
+    stroke-width: 1.5;
+}
+
+.weight-line {
+    fill: none;
+    stroke: #22d3ee;
+    stroke-width: 3;
+}
+
+.weight-dot {
+    fill: #22d3ee;
+}
+
+.chart-label {
+    fill: #94a3b8;
+    font-size: 11px;
+    text-anchor: middle;
+}
+
+.svg-tooltip-box,
+.svg-tooltip-title,
+.svg-tooltip-value {
+    opacity: 0;
+    transition: 0.2s ease;
+    pointer-events: none;
+}
+
+.svg-tooltip-box {
+    fill: #0f172a;
+    stroke: rgba(255,255,255,0.12);
+}
+
+.svg-tooltip-title {
+    fill: white;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.svg-tooltip-value {
+    fill: #22d3ee;
+    font-size: 11px;
+}
+
+.weight-point-group:hover .svg-tooltip-box,
+.weight-point-group:hover .svg-tooltip-title,
+.weight-point-group:hover .svg-tooltip-value {
+    opacity: 1;
+}
+
+.weight-point-group:hover .weight-dot {
+    stroke: white;
+    stroke-width: 2;
+}
+
+/* =========================================================
+   REP CHART
+========================================================= */
+
+.rep-chart-mockup {
+    position: relative;
+    height: 300px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    padding: 10px 10px 0;
+}
+
+.rep-y-axis {
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #94a3b8;
+    font-size: 13px;
+    border-right: 1px solid rgba(148, 163, 184, 0.7);
+    padding-right: 8px;
+}
+
+.rep-bar-area {
+    height: 240px;
+    display: flex;
+    align-items: flex-end;
+    gap: 36px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.7);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 100% 33.33%;
+}
+
+.rep-bar-column {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.rep-bar-hover-zone {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.rep-bar-fill {
+    width: 82%;
+    min-height: 6px;
+    border-radius: 8px 8px 0 0;
+    background: #ff2fb3;
+    transition: 0.2s ease;
+}
+
+.rep-bar-hover-zone:hover {
+    background: rgba(255,255,255,0.75);
+}
+
+.rep-bar-hover-zone:hover .rep-bar-fill {
+    transform: scaleY(0.96);
+}
+
+.rep-x-label {
+    margin-top: 8px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.chart-hover-popup {
+    position: absolute;
+    right: 12px;
+    top: 45%;
+    transform: translateY(-50%);
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: grid;
+    gap: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.2s ease;
+    z-index: 5;
+    white-space: nowrap;
+}
+
+.chart-hover-popup strong {
+    color: white;
+    font-size: 13px;
+}
+
+.chart-hover-popup span {
+    color: #ff2fb3;
+    font-size: 12px;
+}
+
+.rep-bar-hover-zone:hover .chart-hover-popup {
+    opacity: 1;
+}
+
+/* =========================================================
+   RECENT LOGS
+========================================================= */
+
+.progress-logs-header,
+.progress-log-item,
+.modal-header,
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+}
+
+.progress-log-list {
+    display: grid;
+    gap: 14px;
+}
+
+.progress-log-item {
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.progress-log-item p {
+    color: #a8b5c8;
+    margin-top: 6px;
+}
+
+.progress-log-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.primary-action-btn,
+.filter-btn,
+.outline-btn,
+.delete-btn {
+    border: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.primary-action-btn,
+.filter-btn {
+    background: linear-gradient(90deg, #38cfff, #f03bbb);
+}
+
+.outline-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.delete-btn {
+    background: rgba(239,68,68,0.9);
+}
+
+.small-btn {
+    padding: 8px 10px;
+    font-size: 12px;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.auth-field {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 16px;
+    min-width: 0;
+}
+
+.auth-field input,
+.auth-field select,
+.clients-filter {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(15, 23, 42, 0.85);
+    color: white;
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: rgba(0,0,0,0.68);
+    z-index: 50;
+    padding: 24px;
+}
+
+.modal-overlay.show,
+.modal-overlay.active {
+    display: grid;
+}
+
+.modal-card {
+    width: min(760px, 96vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 28px;
+}
+
+.modal-close-btn {
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+    .progress-grid,
+    .progress-toolbar,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .progress-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}

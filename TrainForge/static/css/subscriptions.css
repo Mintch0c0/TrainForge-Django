@@ -1,0 +1,262 @@
+/* =========================================================
+   SUBSCRIPTIONS PAGE
+========================================================= */
+
+.subscriptions-page {
+    padding: 36px;
+}
+
+.subscriptions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.subscriptions-header h1 {
+    font-size: 40px;
+    margin-bottom: 8px;
+}
+
+.subscriptions-header p,
+.results-meta {
+    color: #b8c7df;
+}
+
+/* =========================================================
+   SEARCH AND FILTERS
+========================================================= */
+
+.subscriptions-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px 180px 100px;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.clients-search,
+.clients-filter,
+.auth-field input,
+.auth-field select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(15, 23, 42, 0.85);
+    color: white;
+}
+
+/* =========================================================
+   SUBSCRIPTION TABLE
+========================================================= */
+
+.subscription-table-card {
+    margin-top: 22px;
+    background: rgba(15, 23, 42, 0.74);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 22px;
+    overflow: hidden;
+}
+
+.subscription-table-header,
+.subscription-table-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1.2fr 0.8fr 0.8fr 1fr;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 22px;
+}
+
+.subscription-table-header {
+    color: #a8b5c8;
+    font-weight: 900;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.subscription-table-row {
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.subscription-table-row p {
+    color: #a8b5c8;
+    margin-top: 6px;
+}
+
+.subscription-status {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.subscription-status.active {
+    color: #22d3ee;
+    background: rgba(34,211,238,0.12);
+}
+
+.subscription-status.archived {
+    color: #f87171;
+    background: rgba(239,68,68,0.12);
+}
+
+.subscription-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.primary-action-btn,
+.filter-btn,
+.outline-btn,
+.delete-btn {
+    border: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.primary-action-btn,
+.filter-btn {
+    background: linear-gradient(90deg, #38cfff, #f03bbb);
+}
+
+.outline-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.delete-btn {
+    background: rgba(239,68,68,0.9);
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.pagination-bar {
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: rgba(0,0,0,0.68);
+    z-index: 50;
+    padding: 24px;
+}
+
+.modal-overlay.show,
+.modal-overlay.active {
+    display: grid;
+}
+
+.modal-card {
+    width: min(760px, 95vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    background: #0f172a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 28px;
+}
+
+.delete-modal-card {
+    width: min(500px, 95vw);
+}
+
+.modal-header,
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.modal-header {
+    margin-bottom: 22px;
+}
+
+.modal-close-btn {
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+}
+
+.auth-field {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 16px;
+    min-width: 0;
+}
+
+.warning-text {
+    color: #fca5a5;
+    margin-top: 8px;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-state-card {
+    padding: 32px;
+    text-align: center;
+    color: #a8b5c8;
+}
+
+.empty-state-card h3 {
+    color: white;
+    margin-bottom: 8px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+    .subscriptions-toolbar,
+    .subscription-table-header,
+    .subscription-table-row,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .subscriptions-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}
